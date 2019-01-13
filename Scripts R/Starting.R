@@ -1,12 +1,16 @@
 # code to read raw data, clean it and calculate diversity
 
-##########################################################.
-##Packages----
-lapply(c("dplyr", "readxl", "readr", "iNEXT", "tidyr"), library, character.only = TRUE)
+# TODO:
+# add r session info
+# bring veg map data
+# make this code for basefiles, functions and packages and source it from the rest.
 
+# bringing packages and functions
+source("Scripts R/Functions and packages.R")
 ##########################################################.
-## Data ----
+## Basefile data ----
 ##########################################################.
+#Creating basefile from raw data
 amph_data <- read_excel("Datos/Raw data/Amphibian_survey_data.xlsx", 
                    sheet = "Data", range = "A1:R575") %>% 
   setNames(tolower(names(.))) %>% #variables to lower case
@@ -17,18 +21,23 @@ amph_data <- read_excel("Datos/Raw data/Amphibian_survey_data.xlsx",
   mutate(species = recode(species, "Adenomera sp1" = "Adenomera andreae"),
          transect = tolower(transect)) # some in capital letters
   
-
 #bringing functional group information
 funct_lookup <- read_csv2("Datos/functional_groups_lookup.csv")
-  
+
+#merging with main dataset  
 amph_data <- left_join(amph_data, funct_lookup, by = c("species")) 
 
 saveRDS(amph_data, "Datos/amph_data_basefile.rds")
-amph_dat <- readRDS(amph_data, "Datos/amph_data_basefile.rds")
 
-amph_abun <- amph_data %>% mutate(site = paste0("Band", site)) %>% 
-  group_by(site, species) %>% count() %>% spread (site, n) %>% 
-  mutate_all(funs(replace(., is.na(.), 0))) %>% ungroup() %>% 
-  select(-species) %>% as.list()
+##########################################################.
+## Vegetation mapping data ----
+##########################################################.
+veg_mapping <- read_excel("Datos/Raw data/Vegmap summary data.xlsx", 
+                        sheet = "Varamb.noest", range = "A1:L41") %>% 
+  setNames(tolower(names(.))) %>% #variables to lower case
+  mutate_if(is.numeric, funs(scale(.))) #scaling variables
 
-iNEXT(amph_abun, q=0, datatype="abundance")
+saveRDS(veg_mapping, "Datos/vegmap_basefile.rds")
+
+
+# END
