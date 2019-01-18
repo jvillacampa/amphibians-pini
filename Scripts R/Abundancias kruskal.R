@@ -1,3 +1,47 @@
+# Code to calculate abundances differences
+
+##########################################################.
+## Data ----
+##########################################################.
+# bringing packages and functions
+source("Scripts R/Functions and packages.R")
+
+amph_data <- readRDS("Datos/amph_data_basefile.rds") # basefile
+
+##########################################################.
+## Calculating Kruskal test ----
+##########################################################.
+# Only for species with 10 or more records
+amph_data %>% group_by(species) %>% count() %>% filter(n>9)
+
+kruskal_results <- rbind(
+  calculate_kruskal(vars_group = c("species", "group"), type = "species", 
+                  selection = "Adenomera andreae"), 
+  calculate_kruskal(vars_group = c("species", "group"), type = "species", 
+                    selection = "Ameerega macero"), 
+  calculate_kruskal(vars_group = c("species", "group"), type = "species", 
+                    selection = "Bolitoglossa altamazonica"), 
+  calculate_kruskal(vars_group = c("species", "group"), type = "species", 
+                    selection = "Pristimantis carvalhoi"), 
+  calculate_kruskal(vars_group = c("species", "group"), type = "species", 
+                    selection = "Pristimantis cf. diadematus"), 
+  calculate_kruskal(vars_group = c("species", "group"), type = "species", 
+                    selection = "Pristimantis danae"),
+  calculate_kruskal(vars_group = c("species", "group"), type = "species", 
+                    selection = "Pristimantis ockendeni"),
+  calculate_kruskal(vars_group = c("species", "group"), type = "species", 
+                    selection = "Pristimantis reichlei"), 
+  calculate_kruskal(vars_group = c("species", "group"), type = "species", 
+                  selection = "Pristimantis sp3"), 
+  calculate_kruskal(vars_group = c("habitat", "group"), type = "habitat", 
+                       selection = "Terrestrial") 
+)
+
+
+##########################################################.
+## Old method ----
+##########################################################.
+
 #Archivos de especies
 Baltamazonica <- read.delim("Datos/abundancias/Baltamazonica.txt")
 Danae <- read.delim("Datos/abundancias/Danae.txt")
