@@ -41,7 +41,10 @@ calculate_kruskal <- function(vars_group, type, selection) {
   abun_data <- abun_data %>% mutate(band = as.factor(substr(group, 2, 5))) %>% 
     select(-group) 
   # Calculating Kruskal-Wallis test
-  kruskal.test(abundance ~ band, data = abun_data) 
+  result <- kruskal.test(abundance ~ band, data = abun_data) 
+  kruskal.test(abundance ~ band, data = abun_data)
+  
+  data.frame(pvalue = result$p.value, species = selection)
   
 }
 
