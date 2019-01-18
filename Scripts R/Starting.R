@@ -1,9 +1,4 @@
-# code to read raw data, clean it and calculate diversity
-
-# TODO:
-# add r session info
-# bring veg map data
-# make this code for basefiles, functions and packages and source it from the rest.
+# Code to read raw data and clean it
 
 # bringing packages and functions
 source("Scripts R/Functions and packages.R")
