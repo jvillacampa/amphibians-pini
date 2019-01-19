@@ -54,31 +54,29 @@ kruskal_results <- kruskal_results %>%
          pvalue = case_when(pvalue <= 0.001 ~ paste0("< 0.001*"),
                             between(pvalue, 0.001, 0.05) ~ paste0(pvalue, "*"),
                             pvalue > 0.05 ~ paste0(pvalue)))
-##########################################################.
-## Abundance by transects ----
-##########################################################.
-# Files needed for modelling
-abun_trans_tot <- amph_data %>% group_by(transect) %>% count() %>% ungroup()
-saveRDS(abun_trans_tot, paste0("Datos/prepared_data/modabun_tot.rds"))
-
-abun_trans_repro <- amph_data %>% group_by(transect) %>% count() %>% ungroup()
-saveRDS(abun_trans_repro, paste0("Datos/prepared_data/modabun_repro.rds"))
-
-abun_trans_weight <- amph_data %>% group_by(transect) %>% count() %>% ungroup()
-saveRDS(abun_trans, paste0("Datos/prepared_data/modabun_weight.rds"))
-
-abun_trans_habitat <- amph_data %>% group_by(transect) %>% count() %>% ungroup()
-saveRDS(abun_trans, paste0("Datos/prepared_data/modabun_habitat.rds"))
 
 ##########################################################.
-## Creating table ----
+## Creating tables ----
 ##########################################################.
-# Creating table needed with abundances by band and kruskal p values
-abun_table <- amph_data %>% group_by(species, site) %>% count() %>% 
-  spread(site, n) %>% ungroup()
+# Creating table needed with species abundances by band and kruskal p values
+abun_spec_table <- amph_data %>% group_by(species, site) %>% count() %>% 
+  spread(site, n) %>% ungroup() # converting each band in a column
 
-abun_table <- left_join(abun_table, kruskal_results, by = "species") %>% 
-  mutate_all(funs(replace(., is.na(.), "-"))) 
+abun_spec_table <- left_join(abun_spec_table, kruskal_results, by = "species") %>% 
+  mutate_all(funs(replace(., is.na(.), "-"))) #joining with kruskal pvalue
+
+# options(xtable.floating = FALSE)
+# options(xtable.timestamp = "")
+# xtable(abun_spec_table)
+
+# Creating table needed with group abundances by band and kruskal p values
+abun_func_table <- amph_data %>% # making long format to then aggregate
+  gather(func_group, func_cat, habitat, reproduction, weight_group) %>% 
+  group_by(func_group, func_cat, site) %>% count() %>% 
+  spread(site, n) %>% ungroup() # converting each band in a column
+
+abun_func_table <- left_join(abun_func_table, kruskal_results, by = c("func_cat" = "species")) %>% 
+  mutate_all(funs(replace(., is.na(.), "-"))) #joining with kruskal pvalue
 
 
 ## End
