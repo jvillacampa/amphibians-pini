@@ -6,7 +6,7 @@ library(ggplot2)
 library(dplyr)
 
 #data with all the bands
-rarefaction_data <- read.delim("./Datos mios/Rarefaccion/Rarefacc-R.txt", dec=",") %>% 
+rarefaction_data <- read.delim("Results/Rarefaccion/Rarefacc-R.txt", dec=",") %>% 
   setNames(tolower(names(.))) %>% #variable names to lower case
   rename(rich_lowci = s.est..95..ci.lower.bound, rich_upci = s.est..95..ci.upper.bound, 
          rich_sd = s.est..sd, richness = s.est., individuals = individuals..computed.) %>% 
