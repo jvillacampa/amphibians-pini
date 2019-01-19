@@ -5,14 +5,20 @@
 # Part 3 - Diversity/abundance explained by altitude
 # Part 4 - #Code to create shannon diversity graphs, figure 2
 
-# Why do I use glm function in parts 1 and 2. Also not using band as a fixed effect
-
-##########################################################.
-##Packages----
-library(Hmisc)
-
 ##########################################################.
 ## Data ----
+##########################################################.
+div_mod_tot <- readRDS("Datos/prepared_data/modeldiv_tot.rds")
+div_mod_repro <- readRDS("Datos/prepared_data/modeldiv_repro.rds")
+div_mod_weight <- readRDS("Datos/prepared_data/modeldiv_weight.rds")
+div_mod_habitat <- readRDS("Datos/prepared_data/modeldiv_habitat.rds")
+
+##########################################################.
+## Diversity models ----
+##########################################################.
+
+##########################################################.
+## Old method ----
 ##########################################################.
 Varamb <- read.delim("Datos/modelos glm/Varamb.txt", dec=",")
 #No estandarizadas
