@@ -10,28 +10,57 @@ source("Scripts R/Functions and packages.R")
 # Preparing files needed for iNEXT diversity calculations
 # Abundance by band: total and by functional category
 inext_band <- amph_data %>% mutate(group = paste0("B", site)) %>% make_inext_file()
-
-inext_band_repro <- amph_data %>% mutate(group = paste0("B", site, reproduction)) %>% 
-  make_inext_file()
-
-inext_band_weight <- amph_data %>% mutate(group = paste0("B", site, weight_group)) %>% 
-  make_inext_file()
-
-inext_band_habitat <- amph_data %>% mutate(group = paste0("B", site, habitat)) %>% 
-  make_inext_file()
+# Reproduction groups
+inext_band_water <- amph_data %>% mutate(group = paste0("B", site, reproduction)) %>% 
+  filter(reproduction == "Bodies of water") %>% make_inext_file()
+inext_band_otherrep <- amph_data %>% mutate(group = paste0("B", site, reproduction)) %>% 
+  filter(reproduction == "Other") %>% make_inext_file()
+# Weight groups
+inext_band_less2 <- amph_data %>% mutate(group = paste0("B", site, weight_group)) %>% 
+  filter(weight_group == "< 2.5g") %>% make_inext_file()
+inext_band_2to10 <- amph_data %>% mutate(group = paste0("B", site, weight_group)) %>% 
+  filter(weight_group == "2.5 - 10g") %>% make_inext_file()
+inext_band_more10 <- amph_data %>% mutate(group = paste0("B", site, weight_group)) %>% 
+  filter(weight_group == "> 10g") %>% make_inext_file()
+# Habitat
+inext_band_arboreal <- amph_data %>% mutate(group = paste0("B", site, habitat)) %>% 
+  filter(habitat == "Arboreal") %>% make_inext_file()
+inext_band_terrest <- amph_data %>% mutate(group = paste0("B", site, habitat)) %>% 
+  filter(habitat == "Terrestrial") %>% make_inext_file()
+inext_band_semiarb <- amph_data %>% mutate(group = paste0("B", site, habitat)) %>% 
+  filter(habitat == "Semiarboreal") %>% make_inext_file()
 
 ##########################################################.
 # Abundance by transect: total and by functional category
 inext_transect <- amph_data %>% mutate(group = transect) %>% make_inext_file()
-
-inext_trans_repro <- amph_data %>% mutate(group = paste0("B", site, "_", transect, reproduction)) %>% 
-  make_inext_file()
-
-inext_trans_weight <- amph_data %>% mutate(group = paste0("B", site, "_", transect, weight_group)) %>% 
-  make_inext_file()
-
-inext_trans_habitat <- amph_data %>% mutate(group = paste0("B", site, "_", transect, habitat)) %>% 
-  make_inext_file()
+# Reproduction groups
+inext_trans_water <- amph_data %>% mutate(group = transect) %>% 
+  filter(reproduction == "Bodies of water") %>% make_inext_file()
+inext_trans_otherrep <- amph_data %>% mutate(group = transect) %>% 
+  filter(reproduction == "Other") %>% make_inext_file()
+# Weight groups
+inext_trans_less2 <- amph_data %>% mutate(group = transect) %>% 
+  filter(weight_group == "< 2.5g") %>% make_inext_file()
+inext_trans_2to10 <- amph_data %>% mutate(group = transect) %>% 
+  filter(weight_group == "2.5 - 10g") %>% make_inext_file()
+inext_trans_more10 <- amph_data %>% mutate(group = transect) %>% 
+  filter(weight_group == "> 10g") %>% make_inext_file()
+# Habitat
+inext_trans_arboreal <- amph_data %>% mutate(group = transect) %>% 
+  filter(habitat == "Arboreal") %>% make_inext_file()
+inext_trans_terrest <- amph_data %>% mutate(group = transect) %>% 
+  filter(habitat == "Terrestrial") %>% make_inext_file()
+inext_trans_semiarb <- amph_data %>% mutate(group = transect) %>% 
+  filter(habitat == "Semiarboreal") %>% make_inext_file()
+# 
+# inext_trans_repro <- amph_data %>% mutate(group = paste0("B", site, "_", transect, reproduction)) %>% 
+#   make_inext_file()
+# 
+# inext_trans_weight <- amph_data %>% mutate(group = paste0("B", site, "_", transect, weight_group)) %>% 
+#   make_inext_file()
+# 
+# inext_trans_habitat <- amph_data %>% mutate(group = paste0("B", site, "_", transect, habitat)) %>% 
+#   make_inext_file()
 
 ##########################################################.
 ## Diversity analisys ----
@@ -48,18 +77,36 @@ band_div_habitat <- iNEXT(inext_band_habitat, q=c(0,1,2), datatype="abundance")
 ##########################################################.
 # Diversity by transect: total and by functional category
 transect_div_total <- iNEXT(inext_transect, q=c(0,1,2), datatype="abundance")
-transect_div_repro <- iNEXT(inext_trans_repro, q=c(0,1,2), datatype="abundance")
-transect_div_weight <- iNEXT(inext_trans_weight, q=c(0,1,2), datatype="abundance")
-transect_div_habitat <- iNEXT(inext_trans_habitat, q=c(0,1,2), datatype="abundance")
+# Reproduction groups
+transect_div_water <- iNEXT(inext_trans_water, q=c(0,1,2), datatype="abundance")
+transect_div_otherrep <- iNEXT(inext_trans_otherrep, q=c(0,1,2), datatype="abundance")
+# Weight groups
+transect_div_less2 <- iNEXT(inext_trans_less2, q=c(0,1,2), datatype="abundance")
+transect_div_2to10 <- iNEXT(inext_trans_2to10, q=c(0,1,2), datatype="abundance")
+transect_div_more10 <- iNEXT(inext_trans_more10, q=c(0,1,2), datatype="abundance")
+# Habitat
+transect_div_arboreal <- iNEXT(inext_trans_arboreal, q=c(0,1,2), datatype="abundance")
+transect_div_terrest <- iNEXT(inext_trans_terrest, q=c(0,1,2), datatype="abundance")
+transect_div_semiarb <- iNEXT(inext_trans_semiarb, q=c(0,1,2), datatype="abundance")
 
 ##########################################################.
 ## Preparing files for modelling 
 # Obtaining files with diversity by transect for total and functional categories
-save_model_file(transect_div_total, "modeldiv_tot")
-save_model_file(transect_div_repro, "modeldiv_repro")
-save_model_file(transect_div_weight, "modeldiv_weight")
-save_model_file(transect_div_habitat, "modeldiv_habitat")
-
+save_model_file(transect_div_total, "modeldata_tot")
+# save_model_file(transect_div_repro, "modeldata_repro")
+# save_model_file(transect_div_weight, "modeldata_weight")
+# save_model_file(transect_div_habitat, "modeldata_habitat")
+# Reproduction groups
+save_model_file(transect_div_water, "modeldata_water")
+save_model_file(transect_div_otherrep, "modeldata_otherrep")
+# Weight groups
+save_model_file(transect_div_less2, "modeldata_less2")
+save_model_file(transect_div_2to10, "modeldata_2to10")
+save_model_file(transect_div_more10, "modeldata_more10")
+# Habitat
+save_model_file(transect_div_arboreal, "modeldata_arboreal")
+save_model_file(transect_div_terrest, "modeldata_terrest")
+save_model_file(transect_div_semiarb, "modeldata_semiarb")
 ##########################################################.
 ## Similarity index ----
 ##########################################################.
