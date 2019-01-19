@@ -3,7 +3,14 @@
 ##########################################################.
 ## Packages ----
 ##########################################################.
-lapply(c("dplyr", "readxl", "readr", "iNEXT", "tidyr"), library, character.only = TRUE)
+lapply(c("dplyr", "readxl", "readr", "iNEXT", "tidyr", "ggplot2", "Hmisc"), 
+       library, character.only = TRUE)
+
+##########################################################.
+## Data ----
+##########################################################.
+amph_data <- readRDS("Datos/prepared_data/amph_data_basefile.rds") # basefile amphibians
+veg_mapping <- readRDS("Datos/prepared_data/vegmap_basefile.rds") #vegetation mapping data
 
 ##########################################################.
 ## Functions ----
@@ -15,6 +22,7 @@ make_inext_file <- function(data_abun) {
     select(-species) %>% as.list()
 }
 
+##########################################################.
 # Function to calculate kruskall wallis for abundance between bands
 calculate_kruskal <- function(vars_group, type, selection) {
   
@@ -47,5 +55,50 @@ calculate_kruskal <- function(vars_group, type, selection) {
   data.frame(pvalue = result$p.value, species = selection)
   
 }
+
+##########################################################.
+# Function to combine together results from inext
+combine_inext <- name <- function(results_list, type) {
+  if (type == "band") {
+    rbind(
+      results_list[["iNextEst"]][["B500"]] %>% mutate(altura = "450 - 550"),
+      results_list[["iNextEst"]][["B700"]] %>% mutate(altura = "650 - 750"),
+      results_list[["iNextEst"]][["B900"]] %>% mutate(altura = "850 - 950"),
+      results_list[["iNextEst"]][["B1100"]] %>% mutate(altura = "1050 - 1150")) %>% 
+      mutate(altura = factor(altura, levels = c("450 - 550", "650 - 750", 
+                                                "850 - 950", "1050 - 1150"))) %>% 
+      setNames(tolower(names(.))) 
+    
+  } else if (type == "transect") {
+    do.call("rbind", results_list[["iNextEst"]]) %>% 
+      mutate(transect = substr(row.names(test), 1, unlist(gregexpr("\\.", row.names(test))) - 1)) %>% 
+      setNames(tolower(names(.))) 
+  }
+
+}
+
+##########################################################.
+# Function to format diversity results and save them for modelling.
+save_model_file <- function(results_list, filename) {
+  
+  # if (type == "band") {
+  #   results_data <- results_list[["AsyEst"]] %>% 
+  #     setNames(tolower(names(.))) %>% mutate(site = as.factor(gsub("B", "", site)))
+  #   
+  # } else if (type == "transect") {
+    results_data <- results_list[["AsyEst"]] %>% 
+      setNames(tolower(names(.))) %>% rename(transect = site)
+    
+    # Bringing band data
+    trans_band_lookup <- amph_data %>% select(transect, site) %>% unique()
+    
+    results_data <- left_join(results_data, trans_band_lookup, by = "transect") %>% 
+      mutate(site = as.factor(site))
+  # }
+  # Saving the file
+  saveRDS(results_data, paste0("Datos/prepared_data/", filename, ".rds"))
+  
+}
+
 
 # END
