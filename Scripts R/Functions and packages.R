@@ -9,6 +9,7 @@ lapply(c("dplyr", "readxl", "readr", "iNEXT", "tidyr", "ggplot2", "Hmisc"),
 ##########################################################.
 ## Data ----
 ##########################################################.
+# Loading basefiles
 amph_data <- readRDS("Datos/prepared_data/amph_data_basefile.rds") # basefile amphibians
 veg_mapping <- readRDS("Datos/prepared_data/vegmap_basefile.rds") #vegetation mapping data
 
@@ -57,8 +58,8 @@ calculate_kruskal <- function(vars_group, type, selection) {
 }
 
 ##########################################################.
-# Function to combine together results from inext
-combine_inext <- name <- function(results_list, type) {
+# Function to combine together results from inext. It's also used in save_model_file()
+combine_inext <- function(results_list, type) {
   if (type == "band") {
     rbind(
       results_list[["iNextEst"]][["B500"]] %>% mutate(altura = "450 - 550"),
@@ -71,7 +72,7 @@ combine_inext <- name <- function(results_list, type) {
     
   } else if (type == "transect") {
     do.call("rbind", results_list[["iNextEst"]]) %>% 
-      mutate(transect = substr(row.names(test), 1, unlist(gregexpr("\\.", row.names(test))) - 1)) %>% 
+      mutate(transect = substr(row.names(.), 1, unlist(gregexpr("\\.", row.names(.))) - 1)) %>% 
       setNames(tolower(names(.))) 
   }
 
@@ -87,18 +88,29 @@ save_model_file <- function(results_list, filename) {
   #   
   # } else if (type == "transect") {
     results_data <- results_list[["AsyEst"]] %>% 
-      setNames(tolower(names(.))) %>% rename(transect = site)
+      setNames(tolower(names(.))) %>% rename(transect = site) %>% 
+       mutate(diversity = recode(diversity, "Species richness" = "richness" , 
+                                "Shannon diversity" = "shannon", "Simpson diversity" ="simpson" )) %>% 
+      select(transect, observed, diversity) %>% 
+      spread(diversity, observed) # moving from long to wide format
     
-    # Bringing band data
+    # Adding information on what band each transect is
     trans_band_lookup <- amph_data %>% select(transect, site) %>% unique()
     
-    results_data <- left_join(results_data, trans_band_lookup, by = "transect") %>% 
+    results_data <- left_join(trans_band_lookup, results_data, by = "transect") %>% 
       mutate(site = as.factor(site))
+    
+    # Create dataframe with abundance by transect and merge with diversity one
+    abun_data <- combine_inext(results_list, "transect") %>% 
+      filter(method == "observed" & order == 0) %>% rename(abundance = m) %>% 
+      select(transect, abundance) %>% unique() #to avoid duplicates
+    
+      results_data <- left_join(results_data, abun_data, by= "transect") %>% 
+        mutate_if(is.numeric, funs(replace(., is.na(.), 0))) #converting Nas in 0
   # }
   # Saving the file
   saveRDS(results_data, paste0("Datos/prepared_data/", filename, ".rds"))
   
 }
-
 
 # END
