@@ -3,10 +3,8 @@
 ##########################################################.
 ## Data ----
 ##########################################################.
-# bringing packages and functions
+# bringing packages, basefile data and functions
 source("Scripts R/Functions and packages.R")
-
-amph_data <- readRDS("Datos/amph_data_basefile.rds") # basefile
 
 ##########################################################.
 ## Calculating Kruskal test ----
@@ -33,70 +31,54 @@ kruskal_results <- rbind(
                     selection = "Pristimantis reichlei"), 
   calculate_kruskal(vars_group = c("species", "group"), type = "species", 
                   selection = "Pristimantis sp3"), 
+  calculate_kruskal(vars_group = c("reproduction", "group"), type = "reproduction", 
+                    selection = "Bodies of water"), 
+  calculate_kruskal(vars_group = c("reproduction", "group"), type = "reproduction", 
+                    selection = "Other"), 
+  calculate_kruskal(vars_group = c("weight_group", "group"), type = "weight", 
+                    selection = "< 2.5g"), 
+  calculate_kruskal(vars_group = c("weight_group", "group"), type = "weight", 
+                    selection = "2.5 - 10g"), 
+  calculate_kruskal(vars_group = c("weight_group", "group"), type = "weight", 
+                    selection = "> 10g"), 
   calculate_kruskal(vars_group = c("habitat", "group"), type = "habitat", 
-                       selection = "Terrestrial") 
-)
+                       selection = "Terrestrial"), 
+  calculate_kruskal(vars_group = c("habitat", "group"), type = "habitat", 
+                    selection = "Arboreal"), 
+  calculate_kruskal(vars_group = c("habitat", "group"), type = "habitat", 
+                    selection = "Semiarboreal") 
+) 
 
+kruskal_results <- kruskal_results %>% 
+  mutate(pvalue = round(pvalue, 3), 
+         pvalue = case_when(pvalue <= 0.001 ~ paste0("< 0.001*"),
+                            between(pvalue, 0.001, 0.05) ~ paste0(pvalue, "*"),
+                            pvalue > 0.05 ~ paste0(pvalue)))
+##########################################################.
+## Abundance by transects ----
+##########################################################.
+# Files needed for modelling
+abun_trans_tot <- amph_data %>% group_by(transect) %>% count() %>% ungroup()
+saveRDS(abun_trans_tot, paste0("Datos/prepared_data/modabun_tot.rds"))
+
+abun_trans_repro <- amph_data %>% group_by(transect) %>% count() %>% ungroup()
+saveRDS(abun_trans_repro, paste0("Datos/prepared_data/modabun_repro.rds"))
+
+abun_trans_weight <- amph_data %>% group_by(transect) %>% count() %>% ungroup()
+saveRDS(abun_trans, paste0("Datos/prepared_data/modabun_weight.rds"))
+
+abun_trans_habitat <- amph_data %>% group_by(transect) %>% count() %>% ungroup()
+saveRDS(abun_trans, paste0("Datos/prepared_data/modabun_habitat.rds"))
 
 ##########################################################.
-## Old method ----
+## Creating table ----
 ##########################################################.
+# Creating table needed with abundances by band and kruskal p values
+abun_table <- amph_data %>% group_by(species, site) %>% count() %>% 
+  spread(site, n) %>% ungroup()
 
-#Archivos de especies
-Baltamazonica <- read.delim("Datos/abundancias/Baltamazonica.txt")
-Danae <- read.delim("Datos/abundancias/Danae.txt")
-Carvalhoi <- read.delim("Datos/abundancias/Carvalhoi.txt")
-Diadematus <- read.delim("Datos/abundancias/Diadematus.txt")
-Macero <- read.delim("Datos/abundancias/Macero.txt")
-Ockendeni <- read.delim("Datos/abundancias/Ockendeni.txt")
-Psp3 <- read.delim("Datos/abundancias/Psp3.txt")
-Reichlei <- read.delim("Datos/abundancias/Reichlei.txt")
-
-#Archivos de grupos
-Terrestres <- read.delim("Datos/abundancias/Terrestres.txt")
-Semiarboreos <- read.delim("Datos/abundancias/Semiarboreos.txt")
-Arboreos <- read.delim("Datos/abundancias/Arboreos.txt")
-Biomasa1 <- read.delim("Datos/abundancias/Biomasa1.txt")
-Biomasa2 <- read.delim("Datos/abundancias/Biomasa2.txt")
-Biomasa3 <- read.delim("Datos/abundancias/Biomasa3.txt")
-Bufonidae <- read.delim("Datos/abundancias/Bufonidae.txt")
-Craugastoridae <- read.delim("Datos/abundancias/Craugastoridae.txt")
-Dendrobatidae <- read.delim("Datos/abundancias/Dendrobatidae.txt")
-Hylidae <- read.delim("Datos/abundancias/Hylidae.txt")
-Leptodactylidae <- read.delim("Datos/abundancias/Leptodactylidae.txt")
-Agua <- read.delim("Datos/abundancias/Agua.txt")
-Otros <- read.delim("Datos/abundancias/Otros.txt")
-Total.abun <- read.delim("Datos/abundancias/Total.abun.txt")
-
-
-#Tests
-kruskal.test(Abun ~ Altura, data=Danae)
-kruskal.test(Abun ~ Altura, data=Baltamazonica)
-kruskal.test(Abun ~ Altura, data=Andreae)
-kruskal.test(Abun ~ Altura, data=Carvalhoi)
-kruskal.test(Abun ~ Altura, data=Diadematus)
-kruskal.test(Abun ~ Altura, data=Macero)
-kruskal.test(Abun ~ Altura, data=Ockendeni)
-kruskal.test(Abun ~ Altura, data=Psp3)
-kruskal.test(Abun ~ Altura, data=Reichlei)
-
-#Tests de grupos
-kruskal.test(Abun ~ Altura, data=Biomasa1)
-kruskal.test(Abun ~ Altura, data=Biomasa2)
-kruskal.test(Abun ~ Altura, data=Biomasa3)
-kruskal.test(Abun ~ Altura, data=Arboreos)
-kruskal.test(Abun ~ Altura, data=Semiarboreos)
-kruskal.test(Abun ~ Altura, data=Terrestres)
-kruskal.test(Abun ~ Altura, data=Bufonidae)
-kruskal.test(Abun ~ Altura, data=Craugastoridae)
-kruskal.test(Abun ~ Altura, data=Dendrobatidae)
-kruskal.test(Abun ~ Altura, data=Hylidae)
-kruskal.test(Abun ~ Altura, data=Leptodactylidae)
-kruskal.test(Abun ~ Altura, data=Agua)
-kruskal.test(Abun ~ Altura, data=Otros)
-
-
-kruskal.test(Abun ~ Altura, data=Total.abun)
+abun_table <- left_join(abun_table, kruskal_results, by = "species") %>% 
+  mutate_all(funs(replace(., is.na(.), "-"))) 
 
 
 ## End
