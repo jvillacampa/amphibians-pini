@@ -3,8 +3,8 @@
 ##########################################################.
 ## Packages ----
 ##########################################################.
-lapply(c("dplyr", "readxl", "readr", "iNEXT", "tidyr", "ggplot2", "Hmisc"), 
-       library, character.only = TRUE)
+lapply(c("dplyr", "readxl", "readr", "iNEXT", "tidyr", "ggplot2", "Hmisc", 
+         "tibble", "vegan"), library, character.only = TRUE)
 
 ##########################################################.
 ## Data ----
