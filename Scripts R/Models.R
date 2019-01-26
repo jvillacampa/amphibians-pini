@@ -3,7 +3,7 @@
 # Part 1 - Overall Diversity/abundance explained by environmental variables
 # Part 2 - Band Diversity/abundance explained by environmental variables
 # Part 3 - Diversity/abundance explained by altitude
-# Part 4 - #Code to create shannon diversity graphs, figure 2
+# Part 4 - Code to create shannon diversity graphs, figure 2
 
 ##########################################################..
 ## Data ----
@@ -27,73 +27,86 @@ div_mod_semiarb <- readRDS("Datos/prepared_data/modeldata_semiarb.rds")
 ##########################################################..
 ##########################################################..
 # Totalmodels
-mod_abun_tot_500 <- lm(abundance ~ site, data = div_mod_tot)
-summary(mod_abun_tot_500) # no significant
-mod_abun_tot_700 <- lm(abundance ~ relevel(site, ref = "700"), data = div_mod_tot)
-summary(mod_abun_tot_700) # significant between 700 and 1100
-mod_abun_tot_900 <- lm(abundance ~ relevel(site, ref = "900"), data = div_mod_tot)
-summary(mod_abun_tot_900) # no significant
+# Two lower bands much higher than two upper bands.
+mod_abun_tot_500 <- glm(abundance ~ site, data = div_mod_tot, family = "poisson")
+summary(mod_abun_tot_500) # no significant, almost with 1100
+plot(mod_abun_tot_500) #checking residuals
+hist(mod_abun_tot_500$residuals, breaks = 10) #checking residuals
+mod_abun_tot_700 <- glm(abundance ~ relevel(site, ref = "700"), 
+                        data = div_mod_tot, family = "poisson")
+summary(mod_abun_tot_700) # significant between 700 and 900, 1100
+mod_abun_tot_900 <- glm(abundance ~ relevel(site, ref = "900"), 
+                        data = div_mod_tot, family = "poisson")
+summary(mod_abun_tot_900) # with 700
 ##########################################################..
 # Reproduction groups
 # Water
-mod_abun_water_500 <- lm(abundance ~ site, data = div_mod_water)
-summary(mod_abun_water_500) # significant between 500 and (900 and 1100)
-mod_abun_water_700 <- lm(abundance ~ relevel(site, ref = "700"), data = div_mod_water)
-summary(mod_abun_water_700) # significant between 700 and (900 and almost 1100)
-mod_abun_water_900 <- lm(abundance ~ relevel(site, ref = "900"), data = div_mod_water)
-summary(mod_abun_water_900) # significant between 900 and 700
+# Due to high amount of overdispersion and zero inflation no model works well here.
 # Other reproductive habitats
-mod_abun_otherrep_500 <- lm(abundance ~ site, data = div_mod_otherrep)
-summary(mod_abun_otherrep_500) # no signifcant
-mod_abun_otherrep_700 <- lm(abundance ~ relevel(site, ref = "700"), data = div_mod_otherrep)
-summary(mod_abun_otherrep_700) # almost significant between 700 and 1100
-mod_abun_otherrep_900 <- lm(abundance ~ relevel(site, ref = "900"), data = div_mod_otherrep)
+mod_abun_otherrep_500 <- glm(abundance ~ site, data = div_mod_otherrep, family = "poisson")
+summary(mod_abun_otherrep_500) # almost with 700
+plot(mod_abun_otherrep_500)
+hist(mod_abun_otherrep_500$residuals, breaks = 5)
+mod_abun_otherrep_700 <- glm(abundance ~ relevel(site, ref = "700"), 
+                            data = div_mod_otherrep, family = "poisson")
+summary(mod_abun_otherrep_700) # significant between 700 and 1100, almost 500
+mod_abun_otherrep_900 <- glm(abundance ~ relevel(site, ref = "900"), 
+                            data = div_mod_otherrep, family = "poisson")
 summary(mod_abun_otherrep_900) # no signifcant
 ##########################################################..
 # Weight groups
 # Less than 2.5
-mod_abun_less2_500 <- lm(abundance ~ site, data = div_mod_less2)
-summary(mod_abun_less2_500) # significan between 500 and 1100
-mod_abun_less2_700 <- lm(abundance ~ relevel(site, ref = "700"), data = div_mod_less2)
-summary(mod_abun_less2_700) # significan between 700 and 1100
-mod_abun_less2_900 <- lm(abundance ~ relevel(site, ref = "900"), data = div_mod_less2)
+mod_abun_less2_500 <- glm(abundance ~ site, data = div_mod_less2, family = "poisson")
+summary(mod_abun_less2_500) # significan between 500 and 700 and 1100
+plot(mod_abun_less2_500)
+hist(mod_abun_less2_500$residuals, breaks = 5)
+mod_abun_less2_700 <- glm(abundance ~ relevel(site, ref = "700"), 
+                          data = div_mod_less2, family = "poisson")
+summary(mod_abun_less2_700) # significan between 700 and 500 and 1100
+mod_abun_less2_900 <- glm(abundance ~ relevel(site, ref = "900"), 
+                          data = div_mod_less2, family = "poisson")
 summary(mod_abun_less2_900) # significan between 900 and 1100
 # 2.5 to 10
-mod_abun_2to10_500 <- lm(abundance ~ site, data = div_mod_2to10)
+mod_abun_2to10_500 <- glm(abundance ~ site, data = div_mod_2to10, family = "poisson")
 summary(mod_abun_2to10_500) # almost significan between 500 and 1100
-mod_abun_2to10_700 <- lm(abundance ~ relevel(site, ref = "700"), data = div_mod_2to10)
+plot(mod_abun_2to10_500)
+hist(mod_abun_2to10_500$residuals, breaks = 5)
+mod_abun_2to10_700 <- glm(abundance ~ relevel(site, ref = "700"), 
+                          data = div_mod_2to10, family = "poisson")
 summary(mod_abun_2to10_700) # almost significan between 700 and 1100
-mod_abun_2to10_900 <- lm(abundance ~ relevel(site, ref = "900"), data = div_mod_2to10)
+mod_abun_2to10_900 <- glm(abundance ~ relevel(site, ref = "900"), 
+                          data = div_mod_2to10, family = "poisson")
 summary(mod_abun_2to10_900) # significant between 900 and 1100
+
 # More 10
-mod_abun_more10_500 <- lm(abundance ~ site, data = div_mod_more10)
-summary(mod_abun_more10_500) # significant between 500 and 900-1100
-mod_abun_more10_700 <- lm(abundance ~ relevel(site, ref = "700"), data = div_mod_more10)
-summary(mod_abun_more10_700) # no significant 
-mod_abun_more10_900 <- lm(abundance ~ relevel(site, ref = "900"), data = div_mod_more10)
-summary(mod_abun_more10_900) # significant between 900 and 500
+# No models here because sample size too small.
+
 ##########################################################..
 # Habitat
 # Arboreal
-mod_abun_arboreal_500 <- lm(abundance ~ site, data = div_mod_arboreal)
-summary(mod_abun_arboreal_500) # no sign
-mod_abun_arboreal_700 <- lm(abundance ~ relevel(site, ref = "700"), data = div_mod_arboreal)
-summary(mod_abun_arboreal_700) # no sign
-mod_abun_arboreal_900 <- lm(abundance ~ relevel(site, ref = "900"), data = div_mod_arboreal)
-summary(mod_abun_arboreal_900) # no sign
+# No models here because sample size too small.
+
 # Terrestrial
-mod_abun_terrest_500 <- lm(abundance ~ site, data = div_mod_terrest)
-summary(mod_abun_terrest_500) # significant between 500 and 900 and almost 1000
-mod_abun_terrest_700 <- lm(abundance ~ relevel(site, ref = "700"), data = div_mod_terrest)
-summary(mod_abun_terrest_700) # almost significant between 700 and 900
-mod_abun_terrest_900 <- lm(abundance ~ relevel(site, ref = "900"), data = div_mod_terrest)
-summary(mod_abun_terrest_900) # significant between 900 and 500 and almost 700
+mod_abun_terrest_500 <- glm(abundance ~ site, data = div_mod_terrest, family = "poisson")
+summary(mod_abun_terrest_500) # significant between 500 and 900 and 1100
+plot(mod_abun_terrest_500)
+hist(mod_abun_terrest_500$residuals, breaks = 5)
+mod_abun_terrest_700 <- glm(abundance ~ relevel(site, ref = "700"), 
+                           data = div_mod_terrest, family = "poisson")
+summary(mod_abun_terrest_700) # significant between 700 and 900 and 1100
+mod_abun_terrest_900 <- glm(abundance ~ relevel(site, ref = "900"), 
+                           data = div_mod_terrest, family = "poisson")
+summary(mod_abun_terrest_900) # significant between 900 and 500 and 700
 # Semiarboreal
-mod_abun_semiarb_500 <- lm(abundance ~ site, data = div_mod_semiarb)
-summary(mod_abun_semiarb_500) # no sign
-mod_abun_semiarb_700 <- lm(abundance ~ relevel(site, ref = "700"), data = div_mod_semiarb)
-summary(mod_abun_semiarb_700) # almost significan between 700 and 1100
-mod_abun_semiarb_900 <- lm(abundance ~ relevel(site, ref = "900"), data = div_mod_semiarb)
+mod_abun_semiarb_500 <- glm(abundance ~ site, data = div_mod_semiarb, family = "poisson")
+summary(mod_abun_semiarb_500) # significant with 700
+plot(mod_abun_semiarb_500)
+hist(mod_abun_semiarb_500$residuals, breaks = 5)
+mod_abun_semiarb_700 <- glm(abundance ~ relevel(site, ref = "700"), 
+                            data = div_mod_semiarb, family = "poisson")
+summary(mod_abun_semiarb_700) # significant between 700 and 1100 and 500
+mod_abun_semiarb_900 <- glm(abundance ~ relevel(site, ref = "900"), 
+                            data = div_mod_semiarb, family = "poisson")
 summary(mod_abun_semiarb_900) # no sign
 
 ##########################################################..
@@ -101,74 +114,87 @@ summary(mod_abun_semiarb_900) # no sign
 ##########################################################..
 ##########################################################.
 # Total models
-mod_rich_tot_500 <- lm(richness ~ site, data = div_mod_tot)
-summary(mod_rich_tot_500) # significant between 500 and (900 and 1100)
-mod_rich_tot_700 <- lm(richness ~ relevel(site, ref = "700"), data = div_mod_tot)
-summary(mod_rich_tot_700) # significant between 700 and (900 and 1100)
-mod_rich_tot_900 <- lm(richness ~ relevel(site, ref = "900"), data = div_mod_tot)
-summary(mod_rich_tot_900) # significant between 900 and (500 and 700)
+# Clear decrease with altitude
+mod_rich_tot_500b <- glm(richness ~ site, data = div_mod_tot, family = "poisson")
+plot(mod_rich_tot_500b) #checking residuals
+hist(mod_rich_tot_500b$residuals, breaks = 10) #checking residuals
+summary(mod_rich_tot_500b) # significant between 500 and 1100 and almost 900
+mod_rich_tot_700 <- glm(richness ~ relevel(site, ref = "700"), 
+                        data = div_mod_tot, family = "poisson")
+summary(mod_rich_tot_700) # significant between 700 and  1100
+mod_rich_tot_900 <- glm(richness ~ relevel(site, ref = "900"), family = "poisson",
+                       data = div_mod_tot)
+summary(mod_rich_tot_900) # almost with 500
 ##########################################################.
 # Reproduction groups
 # Water
-mod_rich_water_500 <- lm(richness ~ site, data = div_mod_water)
-summary(mod_rich_water_500) # significant between 500 and (900 and 1100)
-mod_rich_water_700 <- lm(richness ~ relevel(site, ref = "700"), data = div_mod_water)
-summary(mod_rich_water_700) # almost significant between 700 and 900
-mod_rich_water_900 <- lm(richness ~ relevel(site, ref = "900"), data = div_mod_water)
-summary(mod_rich_water_900) # significant between 900 and 500 and almost 700
+# Due to high amount of overdispersion and zero inflation no model works well here.
 # Other reproductive habitats
-mod_rich_otherrep_500 <- lm(richness ~ site, data = div_mod_otherrep)
+mod_rich_otherrep_500 <- glm(richness ~ site, data = div_mod_otherrep, family = "poisson")
+plot(mod_rich_less2_500)
+hist(mod_rich_less2_500$residuals, breaks = 5)
 summary(mod_rich_otherrep_500) # significant with 1100
-mod_rich_otherrep_700 <- lm(richness ~ relevel(site, ref = "700"), data = div_mod_otherrep)
+mod_rich_otherrep_700 <- glm(richness ~ relevel(site, ref = "700"), 
+                             data = div_mod_otherrep, family = "poisson")
 summary(mod_rich_otherrep_700) # significant with 1100
-mod_rich_otherrep_900 <- lm(richness ~ relevel(site, ref = "900"), data = div_mod_otherrep)
-summary(mod_rich_otherrep_900) # almost sign with 1100
+mod_rich_otherrep_900 <- glm(richness ~ relevel(site, ref = "900"), 
+                             data = div_mod_otherrep, family = "poisson")
+summary(mod_rich_otherrep_900) # no significant
 ##########################################################.
 # Weight groups
 # Less than 2.5
-mod_rich_less2_500 <- lm(richness ~ site, data = div_mod_less2)
-summary(mod_rich_less2_500) # significan between 500 and 1100 and 900
-mod_rich_less2_700 <- lm(richness ~ relevel(site, ref = "700"), data = div_mod_less2)
-summary(mod_rich_less2_700) # significan between 700 and 1100
-mod_rich_less2_900 <- lm(richness ~ relevel(site, ref = "900"), data = div_mod_less2)
-summary(mod_rich_less2_900) # significan between 900 and 1100
+mod_rich_less2_500 <- glm(richness ~ site, data = div_mod_less2, family = "poisson")
+summary(mod_rich_less2_500) # significant between 500 and 1100 
+plot(mod_rich_less2_500)
+hist(mod_rich_less2_500$residuals, breaks = 5)
+mod_rich_less2_700 <- glm(richness ~ relevel(site, ref = "700"), 
+                          data = div_mod_less2, family = "poisson")
+summary(mod_rich_less2_700) # significant between 700 and 1100
+mod_rich_less2_900 <- glm(richness ~ relevel(site, ref = "900"), 
+                          data = div_mod_less2, family = "poisson")
+summary(mod_rich_less2_900) # significant between 900 and 1100
 # 2.5 to 10
-mod_rich_2to10_500 <- lm(richness ~ site, data = div_mod_2to10)
+mod_rich_2to10_500 <- glm(richness ~ site, data = div_mod_2to10)
 summary(mod_rich_2to10_500) # no significant
-mod_rich_2to10_700 <- lm(richness ~ relevel(site, ref = "700"), data = div_mod_2to10)
+plot(mod_rich_2to10_500)
+hist(mod_rich_2to10_500$residuals, breaks = 5)
+mod_rich_2to10_700 <- glm(richness ~ relevel(site, ref = "700"), 
+                          data = div_mod_2to10, family = "poisson")
 summary(mod_rich_2to10_700) # no significant
-mod_rich_2to10_900 <- lm(richness ~ relevel(site, ref = "900"), data = div_mod_2to10)
+mod_rich_2to10_900 <- glm(richness ~ relevel(site, ref = "900"), 
+                          data = div_mod_2to10, family = "poisson")
 summary(mod_rich_2to10_900) # no significant
+
 # More 10
-mod_rich_more10_500 <- lm(richness ~ site, data = div_mod_more10)
-summary(mod_rich_more10_500) # significant with all
-mod_rich_more10_700 <- lm(richness ~ relevel(site, ref = "700"), data = div_mod_more10)
-summary(mod_rich_more10_700) #significant with 500
-mod_rich_more10_900 <- lm(richness ~ relevel(site, ref = "900"), data = div_mod_more10)
-summary(mod_rich_more10_900) # significant between 900 and 500
+# No models here because sample size too small.
+
 ##########################################################.
 # Habitat
 # Arboreal
-mod_rich_arboreal_500 <- lm(richness ~ site, data = div_mod_arboreal)
-summary(mod_rich_arboreal_500) # sign with 900 and 1100
-mod_rich_arboreal_700 <- lm(richness ~ relevel(site, ref = "700"), data = div_mod_arboreal)
-summary(mod_rich_arboreal_700) # no sign
-mod_rich_arboreal_900 <- lm(richness ~ relevel(site, ref = "900"), data = div_mod_arboreal)
-summary(mod_rich_arboreal_900) # sign with 500
+# No models here because sample size too small.
+
 # Terrestrial
-mod_rich_terrest_500 <- lm(richness ~ site, data = div_mod_terrest)
+mod_rich_terrest_500 <- glm(richness ~ site, data = div_mod_terrest, family = "poisson")
 summary(mod_rich_terrest_500) # significant between 500 and 900 
-mod_rich_terrest_700 <- lm(richness ~ relevel(site, ref = "700"), data = div_mod_terrest)
-summary(mod_rich_terrest_700) # almost significant between 700 and 900
-mod_rich_terrest_900 <- lm(richness ~ relevel(site, ref = "900"), data = div_mod_terrest)
-summary(mod_rich_terrest_900) # significant between 900 and 500 and almost 700
+plot(mod_rich_terrest_500)
+hist(mod_rich_terrest_500$residuals, breaks = 5)
+mod_rich_terrest_700 <- glm(richness ~ relevel(site, ref = "700"), 
+                           data = div_mod_terrest, family = "poisson")
+summary(mod_rich_terrest_700) # significant between 700 and 900
+mod_rich_terrest_900 <- glm(richness ~ relevel(site, ref = "900"), 
+                           data = div_mod_terrest, family = "poisson")
+summary(mod_rich_terrest_900) # significant between 900 and 500 and 700
 # Semiarboreal
-mod_rich_semiarb_500 <- lm(richness ~ site, data = div_mod_semiarb)
+mod_rich_semiarb_500 <- glm(richness ~ site, data = div_mod_semiarb, family = "poisson")
 summary(mod_rich_semiarb_500) # sign with 1100
-mod_rich_semiarb_700 <- lm(richness ~ relevel(site, ref = "700"), data = div_mod_semiarb)
-summary(mod_rich_semiarb_700) # significan between 700 and 1100
-mod_rich_semiarb_900 <- lm(richness ~ relevel(site, ref = "900"), data = div_mod_semiarb)
-summary(mod_rich_semiarb_900) # sign with 1100
+plot(mod_rich_semiarb_500)
+hist(mod_rich_semiarb_500$residuals, breaks = 5)
+mod_rich_semiarb_700 <- glm(richness ~ relevel(site, ref = "700"), 
+                           data = div_mod_semiarb, family = "poisson")
+summary(mod_rich_semiarb_700) # significant between 700 and 1100
+mod_rich_semiarb_900 <- glm(richness ~ relevel(site, ref = "900"), 
+                           data = div_mod_semiarb, family = "poisson")
+summary(mod_rich_semiarb_900) # almost sign with 1100
 
 ##########################################################..
 ##  Shannon models ----
@@ -176,148 +202,34 @@ summary(mod_rich_semiarb_900) # sign with 1100
 ##########################################################..
 ##########################################################.
 # Total models
-mod_shan_tot_500 <- lm(shannon ~ site, data = div_mod_tot)
+# Clear decrease with altitude
+# Not doing models for functional groups as the groups size is small and not clear
+# what I will obtain from that.
+mod_shan_tot_500 <- lm(log(shannon) ~ site, data = div_mod_tot)
 summary(mod_shan_tot_500) # significant between 500 and (900 and 1100)
-mod_shan_tot_700 <- lm(shannon ~ relevel(site, ref = "700"), data = div_mod_tot)
-summary(mod_shan_tot_700) # significant between 700 and (900 and 1100)
-mod_shan_tot_900 <- lm(shannon ~ relevel(site, ref = "900"), data = div_mod_tot)
-summary(mod_shan_tot_900) # significant between 900 and (500 and 700)
-##########################################################.
-# Reproduction groups
-# Water
-mod_shan_water_500 <- lm(shannon ~ site, data = div_mod_water)
-summary(mod_shan_water_500) # significant between 500 and (900 and 1100)
-mod_shan_water_700 <- lm(shannon ~ relevel(site, ref = "700"), data = div_mod_water)
-summary(mod_shan_water_700) # almost significant between 700 and 900
-mod_shan_water_900 <- lm(shannon ~ relevel(site, ref = "900"), data = div_mod_water)
-summary(mod_shan_water_900) # significant between 900 and 500 and almost 700
-# Other reproductive habitats
-mod_shan_otherrep_500 <- lm(shannon ~ site, data = div_mod_otherrep)
-summary(mod_shan_otherrep_500) # significant with 900 and 1100
-mod_shan_otherrep_700 <- lm(shannon ~ relevel(site, ref = "700"), data = div_mod_otherrep)
-summary(mod_shan_otherrep_700) # significant with 1100
-mod_shan_otherrep_900 <- lm(shannon ~ relevel(site, ref = "900"), data = div_mod_otherrep)
-summary(mod_shan_otherrep_900) # sign with 500 and almost sign with 1100
-##########################################################.
-# Weight groups
-# Less than 2.5
-mod_shan_less2_500 <- lm(shannon ~ site, data = div_mod_less2)
-summary(mod_shan_less2_500) # significan between 500 and 1100 and 900
-mod_shan_less2_700 <- lm(shannon ~ relevel(site, ref = "700"), data = div_mod_less2)
-summary(mod_shan_less2_700) # significan between 700 and 1100
-mod_shan_less2_900 <- lm(shannon ~ relevel(site, ref = "900"), data = div_mod_less2)
-summary(mod_shan_less2_900) # significan between 900 and 1100 and 500
-# 2.5 to 10
-mod_shan_2to10_500 <- lm(shannon ~ site, data = div_mod_2to10)
-summary(mod_shan_2to10_500) # no significant
-mod_shan_2to10_700 <- lm(shannon ~ relevel(site, ref = "700"), data = div_mod_2to10)
-summary(mod_shan_2to10_700) # no significant
-mod_shan_2to10_900 <- lm(shannon ~ relevel(site, ref = "900"), data = div_mod_2to10)
-summary(mod_shan_2to10_900) # no significant
-# More 10
-mod_shan_more10_500 <- lm(shannon ~ site, data = div_mod_more10)
-summary(mod_shan_more10_500) # significant with all
-mod_shan_more10_700 <- lm(shannon ~ relevel(site, ref = "700"), data = div_mod_more10)
-summary(mod_shan_more10_700) #significant with 500
-mod_shan_more10_900 <- lm(shannon ~ relevel(site, ref = "900"), data = div_mod_more10)
-summary(mod_shan_more10_900) # significant between 900 and 500
-##########################################################.
-# Habitat
-# Arboreal
-mod_shan_arboreal_500 <- lm(shannon ~ site, data = div_mod_arboreal)
-summary(mod_shan_arboreal_500) # sign with 900 and 1100
-mod_shan_arboreal_700 <- lm(shannon ~ relevel(site, ref = "700"), data = div_mod_arboreal)
-summary(mod_shan_arboreal_700) # no sign
-mod_shan_arboreal_900 <- lm(shannon ~ relevel(site, ref = "900"), data = div_mod_arboreal)
-summary(mod_shan_arboreal_900) # sign with 500
-# Terrestrial
-mod_shan_terrest_500 <- lm(shannon ~ site, data = div_mod_terrest)
-summary(mod_shan_terrest_500) # significant between 500 and 900 
-mod_shan_terrest_700 <- lm(shannon ~ relevel(site, ref = "700"), data = div_mod_terrest)
-summary(mod_shan_terrest_700) # significant between 700 and 900
-mod_shan_terrest_900 <- lm(shannon ~ relevel(site, ref = "900"), data = div_mod_terrest)
-summary(mod_shan_terrest_900) # significant between 900 and 500 and 700
-# Semiarboreal
-mod_shan_semiarb_500 <- lm(shannon ~ site, data = div_mod_semiarb)
-summary(mod_shan_semiarb_500) # sign with 900 and 1100
-mod_shan_semiarb_700 <- lm(shannon ~ relevel(site, ref = "700"), data = div_mod_semiarb)
-summary(mod_shan_semiarb_700) # significan between 700 and 1100
-mod_shan_semiarb_900 <- lm(shannon ~ relevel(site, ref = "900"), data = div_mod_semiarb)
-summary(mod_shan_semiarb_900) # sign with 1100
+plot(mod_shan_tot_500)
+hist(mod_shan_tot_500$residuals, breaks = 10)
+mod_shan_tot_700 <- lm(log(shannon) ~ relevel(site, ref = "700"), data = div_mod_tot)
+summary(mod_shan_tot_700) # significant between 700 and 1100, almost 900
+mod_shan_tot_900 <- lm(log(shannon) ~ relevel(site, ref = "900"), data = div_mod_tot)
+summary(mod_shan_tot_900) # significant between 900 and 500 and almost 700
 
 ##########################################################..
 ##  Simpson models ----
 ##########################################################..
 ##########################################################.
 # Total models
-mod_simp_tot_500 <- lm(simpson ~ site, data = div_mod_tot)
-summary(mod_simp_tot_500) # significant between 500 and (700, 900 and 1100)
-mod_simp_tot_700 <- lm(simpson ~ relevel(site, ref = "700"), data = div_mod_tot)
-summary(mod_simp_tot_700) # significant between 700 and (500 and 1100, almost 900)
-mod_simp_tot_900 <- lm(simpson ~ relevel(site, ref = "900"), data = div_mod_tot)
+# Clear decrease with altitude
+# Not doing models for functional groups as the groups size is small and not clear
+# what I will obtain from that.
+mod_simp_tot_500 <- lm(log(simpson) ~ site, data = div_mod_tot)
+summary(mod_simp_tot_500) # significant between 500 and 900 and 1100, almost 700
+plot(mod_simp_tot_500)
+hist(mod_simp_tot_500$residuals, breaks = 10)
+mod_simp_tot_700 <- lm(log(simpson) ~ relevel(site, ref = "700"), data = div_mod_tot)
+summary(mod_simp_tot_700) # significant between 700 and 1100, almost 900 and 500
+mod_simp_tot_900 <- lm(log(simpson) ~ relevel(site, ref = "900"), data = div_mod_tot)
 summary(mod_simp_tot_900) # significant between 900 and 500, almost 700
-##########################################################.
-# Reproduction groups
-# Water
-mod_simp_water_500 <- lm(simpson ~ site, data = div_mod_water)
-summary(mod_simp_water_500) # significant between 500 and (900 and 1100)
-mod_simp_water_700 <- lm(simpson ~ relevel(site, ref = "700"), data = div_mod_water)
-summary(mod_simp_water_700) # almost significant between 700 and 900
-mod_simp_water_900 <- lm(simpson ~ relevel(site, ref = "900"), data = div_mod_water)
-summary(mod_simp_water_900) # significant between 900 and 500 and almost 700
-# Other reproductive habitats
-mod_simp_otherrep_500 <- lm(simpson ~ site, data = div_mod_otherrep)
-summary(mod_simp_otherrep_500) # significant with all
-mod_simp_otherrep_700 <- lm(simpson ~ relevel(site, ref = "700"), data = div_mod_otherrep)
-summary(mod_simp_otherrep_700) # significant with 1100 and 500
-mod_simp_otherrep_900 <- lm(simpson ~ relevel(site, ref = "900"), data = div_mod_otherrep)
-summary(mod_simp_otherrep_900) # sign with 500 and almost sign with 1100
-##########################################################.
-# Weight groups
-# Less than 2.5
-mod_simp_less2_500 <- lm(simpson ~ site, data = div_mod_less2)
-summary(mod_simp_less2_500) # significan between 500 and 1100 and 900, almost 700
-mod_simp_less2_700 <- lm(simpson ~ relevel(site, ref = "700"), data = div_mod_less2)
-summary(mod_simp_less2_700) # significan between 700 and 1100, almost 500
-mod_simp_less2_900 <- lm(simpson ~ relevel(site, ref = "900"), data = div_mod_less2)
-summary(mod_simp_less2_900) # significan between 900 and 1100 and 500
-# 2.5 to 10
-mod_simp_2to10_500 <- lm(simpson ~ site, data = div_mod_2to10)
-summary(mod_simp_2to10_500) # no significant
-mod_simp_2to10_700 <- lm(simpson ~ relevel(site, ref = "700"), data = div_mod_2to10)
-summary(mod_simp_2to10_700) # no significant
-mod_simp_2to10_900 <- lm(simpson ~ relevel(site, ref = "900"), data = div_mod_2to10)
-summary(mod_simp_2to10_900) # no significant
-# More 10
-mod_simp_more10_500 <- lm(simpson ~ site, data = div_mod_more10)
-summary(mod_simp_more10_500) # significant with all
-mod_simp_more10_700 <- lm(simpson ~ relevel(site, ref = "700"), data = div_mod_more10)
-summary(mod_simp_more10_700) #significant with 500
-mod_simp_more10_900 <- lm(simpson ~ relevel(site, ref = "900"), data = div_mod_more10)
-summary(mod_simp_more10_900) # significant between 900 and 500
-##########################################################.
-# Habitat
-# Arboreal
-mod_simp_arboreal_500 <- lm(simpson ~ site, data = div_mod_arboreal)
-summary(mod_simp_arboreal_500) # sign with 900 and 1100
-mod_simp_arboreal_700 <- lm(simpson ~ relevel(site, ref = "700"), data = div_mod_arboreal)
-summary(mod_simp_arboreal_700) # no sign
-mod_simp_arboreal_900 <- lm(simpson ~ relevel(site, ref = "900"), data = div_mod_arboreal)
-summary(mod_simp_arboreal_900) # sign with 500
-# Terrestrial
-mod_simp_terrest_500 <- lm(simpson ~ site, data = div_mod_terrest)
-summary(mod_simp_terrest_500) # significant between 500 and 900 
-mod_simp_terrest_700 <- lm(simpson ~ relevel(site, ref = "700"), data = div_mod_terrest)
-summary(mod_simp_terrest_700) # significant between 700 and 900
-mod_simp_terrest_900 <- lm(simpson ~ relevel(site, ref = "900"), data = div_mod_terrest)
-summary(mod_simp_terrest_900) # significant between 900 and 500 and 700
-# Semiarboreal
-mod_simp_semiarb_500 <- lm(simpson ~ site, data = div_mod_semiarb)
-summary(mod_simp_semiarb_500) # sign with 900 and 1100, almost 700
-mod_simp_semiarb_700 <- lm(simpson ~ relevel(site, ref = "700"), data = div_mod_semiarb)
-summary(mod_simp_semiarb_700) # significan between 700 and 1100, almost 500
-mod_simp_semiarb_900 <- lm(simpson ~ relevel(site, ref = "900"), data = div_mod_semiarb)
-summary(mod_simp_semiarb_900) # sign with 1100 and 500
 
 ##########################################################..
 ## Old method ----
@@ -641,56 +553,6 @@ summary(abun71a)
 
 abun71a<-glm(Abundancia~AltDosel+CobDosel+Densidad+Helechos, family="gaussian", data=Varamb700)
 summary(abun71a)
-
-##########################################################..
-## Diversity/abundance models explained by altitude ----
-##########################################################..
-
-#modelos de comparación entre bandas de diversidad, abundancia y riqueza
-#para cambiar orden de los factores para sus comparaciones
-mod1<-lm(Abundancia~relevel(Varamb$Banda, ref="b"), data=Varamb)
-summary(mod1)
-#solo significativo entre 700 y 1100
-#ahora diversidad
-mod2<-lm(Diversidad~relevel(Varamb$Banda, ref="a"), data=Varamb)
-summary(mod2)
-plot(mod2)
-#sin relevel para hacer exlusion
-mod2.2<-lm(Diversidad~Banda, data=Varamb)
-summary(mod2.2)
-plot(mod2.2)
-#punto jodienda en banda 700 solo 1 especie-1 encuentro
-#prueba de exclusión relevel y excluir parecen no funcionar bien juntos. quitalo para correrlo
-mod2.1<-update(mod2.2, data=Varamb[-21,])
-summary(mod2.1)
-plot(mod2.1)
-#No parece alterar las relaciones 
-#prueba con ggplot
-ggplot(Varamb, aes(x = Diversidad, y = Abundancia, color=Banda))+
-  geom_point()
-
-#continúo con otras bandas
-mod3<-lm(Diversidad~relevel(Varamb$Banda, ref="b"), data=Varamb)
-summary(mod3)
-plot(mod3)
-
-mod4<-lm(Diversidad~relevel(Varamb$Banda, ref="c"), data=Varamb)
-summary(mod4)
-
-#ahora con riqueza
-mod5<-lm(Riqueza~relevel(Varamb$Banda, ref="a"), data=Varamb)
-summary(mod5)
-
-mod6<-lm(Riqueza~relevel(Varamb$Banda, ref="b"), data=Varamb)
-summary(mod6)
-
-mod7<-lm(Riqueza~relevel(Varamb$Banda, ref="c"), data=Varamb)
-summary(mod7)
-
-##########################################################..
-## Functional groups explained by altitude ----
-##########################################################..
-
 
 ##########################################################..
 ## Code to create shannon diversity graphs, figure 2 ----
