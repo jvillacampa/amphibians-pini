@@ -7,7 +7,7 @@
 source("Scripts R/Functions and packages.R")
 
 ##########################################################.
-# Preparing files needed for iNEXT diversity calculations
+# Preparing files needed for iNEXT alpha diversity calculations
 # Abundance by band: total and by functional category
 inext_band <- amph_data %>% mutate(group = paste0("B", site)) %>% make_inext_file()
 # Reproduction groups
@@ -52,23 +52,21 @@ inext_trans_terrest <- amph_data %>% mutate(group = transect) %>%
   filter(habitat == "Terrestrial") %>% make_inext_file()
 inext_trans_semiarb <- amph_data %>% mutate(group = transect) %>% 
   filter(habitat == "Semiarboreal") %>% make_inext_file()
-# 
-# inext_trans_repro <- amph_data %>% mutate(group = paste0("B", site, "_", transect, reproduction)) %>% 
-#   make_inext_file()
-# 
-# inext_trans_weight <- amph_data %>% mutate(group = paste0("B", site, "_", transect, weight_group)) %>% 
-#   make_inext_file()
-# 
-# inext_trans_habitat <- amph_data %>% mutate(group = paste0("B", site, "_", transect, habitat)) %>% 
-#   make_inext_file()
 
 ##########################################################.
-## Diversity analisys ----
+# Data for beta diversity similarity analysis
+simil_basedata <- amph_data %>% group_by(species, site) %>% count() %>% 
+  spread(species, n)  %>% mutate_all(funs(replace(., is.na(.), 0))) %>% 
+  ungroup() %>% column_to_rownames(., "site") 
+
 ##########################################################.
-# running diversity analysis. Endpoint double minimum sample size (Colwell et al.)
+## Alpha diversity analisys ----
+##########################################################.
+# running alpha diversity analysis. 
+# Endpoint double minimum sample size (Colwell et al.)
+# q0 q1 q2 = richness shannon simpson
 ##########################################################.
 # Diversity by band: total and by functional category
-# extrapolating to double the band with less cases
 band_div_total <- iNEXT(inext_band, q=c(0,1,2), datatype="abundance", endpoint = 132)
 band_div_repro <- iNEXT(inext_band_repro, q=c(0,1,2), datatype="abundance")
 band_div_weight <- iNEXT(inext_band_weight, q=c(0,1,2), datatype="abundance")
@@ -93,9 +91,6 @@ transect_div_semiarb <- iNEXT(inext_trans_semiarb, q=c(0,1,2), datatype="abundan
 ## Preparing files for modelling 
 # Obtaining files with diversity by transect for total and functional categories
 save_model_file(transect_div_total, "modeldata_tot")
-# save_model_file(transect_div_repro, "modeldata_repro")
-# save_model_file(transect_div_weight, "modeldata_weight")
-# save_model_file(transect_div_habitat, "modeldata_habitat")
 # Reproduction groups
 save_model_file(transect_div_water, "modeldata_water")
 save_model_file(transect_div_otherrep, "modeldata_otherrep")
@@ -107,9 +102,16 @@ save_model_file(transect_div_more10, "modeldata_more10")
 save_model_file(transect_div_arboreal, "modeldata_arboreal")
 save_model_file(transect_div_terrest, "modeldata_terrest")
 save_model_file(transect_div_semiarb, "modeldata_semiarb")
+
 ##########################################################.
-## Similarity index ----
+## Beta diversity ----
 ##########################################################.
+# From package vegan: Chao-Jaccard Estimated Abundance Similarity
+# Produces dissimilarity, so converting into similarity
+simil_chao <- vegdist(simil_basedata, method = "chao") %>% -1 %>% abs() %>%
+  round(.,2) %>% as.matrix() %>% as.data.frame() #needed to be saved as csv
+
+write_csv2(simil_chao, "Results/diversity/simil_chao.csv")
 
 ##########################################################.
 ## Plotting rarefaction ----
