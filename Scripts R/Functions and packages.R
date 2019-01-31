@@ -82,11 +82,6 @@ combine_inext <- function(results_list, type) {
 # Function to format diversity results and save them for modelling.
 save_model_file <- function(results_list, filename) {
   
-  # if (type == "band") {
-  #   results_data <- results_list[["AsyEst"]] %>% 
-  #     setNames(tolower(names(.))) %>% mutate(site = as.factor(gsub("B", "", site)))
-  #   
-  # } else if (type == "transect") {
     results_data <- results_list[["AsyEst"]] %>% 
       setNames(tolower(names(.))) %>% rename(transect = site) %>% 
        mutate(diversity = recode(diversity, "Species richness" = "richness" , 
@@ -107,7 +102,6 @@ save_model_file <- function(results_list, filename) {
     
       results_data <- left_join(results_data, abun_data, by= "transect") %>% 
         mutate_if(is.numeric, funs(replace(., is.na(.), 0))) #converting Nas in 0
-  # }
   # Saving the file
   saveRDS(results_data, paste0("Datos/prepared_data/", filename, ".rds"))
   
