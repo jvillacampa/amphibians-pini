@@ -129,7 +129,7 @@ raref_extrappoint <- rarefaction_data %>% filter(method == "observed")
 raref_pal <- c("#d7191c", "#fdae61", "#3690c0", "#034e7b") #palette
 
 #this starts the saving the plot command
-jpeg(file="rarefaction_plot_jan19.jpeg",width=190,height=100,
+jpeg(file="Results/rarefaction_plot_jan19.jpeg",width=190,height=100,
      units="mm",res=1000, pointsize=12) 
 
 # code for the plot
