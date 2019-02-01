@@ -58,6 +58,12 @@ inext_trans_semiarb <- amph_data %>% mutate(group = transect) %>%
 simil_basedata <- amph_data %>% group_by(species, site) %>% count() %>% 
   spread(species, n)  %>% mutate_all(funs(replace(., is.na(.), 0))) %>% 
   ungroup() %>% column_to_rownames(., "site") 
+# What if reichlei and cf.reichlei were the same species?
+simil_basedata_nodanae <- amph_data %>% 
+  mutate(species = recode(species, "Pristimantis danae" = "Pristimantis reichlei")) %>% 
+  group_by(species, site) %>% count() %>% 
+  spread(species, n)  %>% mutate_all(funs(replace(., is.na(.), 0))) %>% 
+  ungroup() %>% column_to_rownames(., "site") 
 
 ##########################################################.
 ## Alpha diversity analisys ----
@@ -68,9 +74,22 @@ simil_basedata <- amph_data %>% group_by(species, site) %>% count() %>%
 ##########################################################.
 # Diversity by band: total and by functional category
 band_div_total <- iNEXT(inext_band, q=c(0,1,2), datatype="abundance", endpoint = 132)
-band_div_repro <- iNEXT(inext_band_repro, q=c(0,1,2), datatype="abundance")
-band_div_weight <- iNEXT(inext_band_weight, q=c(0,1,2), datatype="abundance")
-band_div_habitat <- iNEXT(inext_band_habitat, q=c(0,1,2), datatype="abundance")
+# survey completeness as an expression of observed/estimated
+select(band_div_total[["DataInfo"]], site, SC)
+survey_compl <- band_div_total[["AsyEst"]] %>% setNames(tolower(names(.))) %>% 
+  mutate(survey_compl = observed/estimator *100)
+
+# Reproduction groups
+band_div_water <- iNEXT(inext_band_water, q=c(0,1,2), datatype="abundance")
+band_div_otherrep <- iNEXT(inext_band_otherrep, q=c(0,1,2), datatype="abundance")
+# Weight groups
+band_div_less2 <- iNEXT(inext_band_less2, q=c(0,1,2), datatype="abundance")
+band_div_2to10 <- iNEXT(inext_band_2to10, q=c(0,1,2), datatype="abundance")
+band_div_more10 <- iNEXT(inext_band_more10, q=c(0,1,2), datatype="abundance")
+# Habitat
+band_div_arboreal <- iNEXT(inext_band_arboreal, q=c(0,1,2), datatype="abundance")
+band_div_terrest <- iNEXT(inext_band_terrest, q=c(0,1,2), datatype="abundance")
+band_div_semiarb <- iNEXT(inext_band_semiarb, q=c(0,1,2), datatype="abundance")
 
 ##########################################################.
 # Diversity by transect: total and by functional category
@@ -112,6 +131,12 @@ simil_chao <- vegdist(simil_basedata, method = "chao") %>% -1 %>% abs() %>%
   round(.,2) %>% as.matrix() %>% as.data.frame() #needed to be saved as csv
 
 write_csv2(simil_chao, "Results/diversity/simil_chao.csv")
+
+# What if reichlei and cf.reichlei were the same
+simil_chao_nodanae <- vegdist(simil_basedata_nodanae, method = "chao") %>% -1 %>% abs() %>%
+  round(.,2) %>% as.matrix() %>% as.data.frame() #needed to be saved as csv
+
+write_csv2(simil_chao_nodanae, "Results/diversity/simil_chao_nodanae.csv")
 
 ##########################################################.
 ## Plotting rarefaction ----
