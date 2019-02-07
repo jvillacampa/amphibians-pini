@@ -5,9 +5,12 @@
 # Part 3 - Diversity/abundance explained by altitude
 # Part 4 - Code to create shannon diversity graphs, figure 2
 
-##########################################################..
+##########################################################.
 ## Data ----
-##########################################################..
+##########################################################.
+# bringing packages and functions
+source("Scripts R/Functions and packages.R")
+
 # Files created in diversity analysis script.
 div_mod_tot <- readRDS("Datos/prepared_data/modeldata_tot.rds")
 # Reproduction groups
