@@ -60,7 +60,7 @@ ggplot() +
   geom_vline(aes(xintercept=0), linetype= "dashed") + # to create "grid lines"
   geom_hline(aes(yintercept=0), linetype= "dashed") +
   scale_shape_manual(values=c(16, 8, 17, 15), name = "Altitudinal band") + #shape values
-  scale_color_manual(values= c("#d7191c", "#fdae61", "#3690c0", "#034e7b"), 
+  scale_color_manual(values= band_pal, 
                     name = "Altitudinal band") + #color scales 
   #Layout
   labs(x="PC1 (34.3%)", y="PC2 (16.8%)") + # axis titles
