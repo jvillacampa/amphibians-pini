@@ -13,6 +13,8 @@ lapply(c("dplyr", "readxl", "readr", "iNEXT", "tidyr", "ggplot2", "Hmisc",
 amph_data <- readRDS("Datos/prepared_data/amph_data_basefile.rds") # basefile amphibians
 veg_mapping <- readRDS("Datos/prepared_data/vegmap_basefile.rds") #vegetation mapping data
 
+band_pal <- c("#d7191c", "#fdae61", "#3690c0", "#034e7b") #palette for altitudinal bands
+
 ##########################################################.
 ## Functions ----
 ##########################################################.
