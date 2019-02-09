@@ -4,7 +4,7 @@
 ## Packages ----
 ##########################################################.
 lapply(c("dplyr", "readxl", "readr", "iNEXT", "tidyr", "ggplot2", "Hmisc", 
-         "tibble", "vegan"), library, character.only = TRUE)
+         "tibble", "vegan", "ggpubr"), library, character.only = TRUE)
 
 ##########################################################.
 ## Data ----
