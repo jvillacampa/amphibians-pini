@@ -139,7 +139,7 @@ simil_chao_nodanae <- vegdist(simil_basedata_nodanae, method = "chao") %>% -1 %>
 write_csv2(simil_chao_nodanae, "Results/diversity/simil_chao_nodanae.csv")
 
 ##########################################################.
-## Plotting rarefaction ----
+## Plotting rarefaction -figure1 ----
 ##########################################################.
 # Preparing data
 rarefaction_data <- combine_inext(band_div_total, "band") %>% 
@@ -151,10 +151,8 @@ raref_non_extrap <- rarefaction_data %>% filter(method == "interpolated")
 raref_extrappoint <- rarefaction_data %>% filter(method == "observed")
 
 #export in format requested by journal
-raref_pal <- c("#d7191c", "#fdae61", "#3690c0", "#034e7b") #palette
-
 #this starts the saving the plot command
-jpeg(file="Results/rarefaction_plot_jan19.jpeg",width=190,height=100,
+jpeg(file="Results/fig1_rarefaction_plot.jpeg",width=190,height=100,
      units="mm",res=1000, pointsize=12) 
 
 # code for the plot
@@ -165,8 +163,8 @@ ggplot(rarefaction_data, aes(x = m, y = qd, group = altura)) +
   geom_line(data = raref_non_extrap, aes(y = qd, color=altura),lwd=1.5) +
   geom_point(data = raref_extrappoint, aes(y = qd, color = altura, size = 2),
              show.legend = F) +
-  scale_color_manual(values=raref_pal, name = "Altitudinal band") + #color scales line
-  scale_fill_manual(values=raref_pal, name = "") + #color scales ribbon
+  scale_color_manual(values=band_pal, name = "Altitudinal band") + #color scales line
+  scale_fill_manual(values=band_pal, name = "") + #color scales ribbon
   labs(x = "Number of individuals", y = "Number of species"  ) + # axis titles
   scale_x_continuous(expand = c(0, 0)) + # to force axes to start at 0
   scale_y_continuous(expand = c(0, 0), breaks = c(0, 5, 10, 15, 20, 25)) + #for labels in y axes
@@ -181,5 +179,66 @@ ggplot(rarefaction_data, aes(x = m, y = qd, group = altura)) +
   )
 
 dev.off() #this finishes the saving the plot command
+
+##########################################################.
+## Plotting q1, q2, abundance - figure 2 ----
+##########################################################.
+fig2_q1q2 <- combine_inext(band_div_total, "band") %>% 
+  filter(method == "observed" & order != "0") %>% 
+  mutate(altura = factor(altura, levels = c("450 - 550", "650 - 750", "850 - 950", "1050 - 1150")))
+
+abundance_fig2 <- fig2_q1q2 %>% select(m, altura) %>% mutate(order = "Abundance") %>% 
+  unique() %>% rename(qd = m)
+
+# fig2_data <- bind_rows(fig2_q1q2, abundance_fig2) %>% 
+#   select(order, qd, qd.lcl, qd.ucl, altura)
+
+# Creating theme for plots in fig2
+fig2_theme <- theme(text = element_text(size=20),
+      axis.text=element_text(size=16), #axis labels size
+      axis.title.x = element_blank(), #no axis titles
+      axis.line = element_line(), #adding lines for both axis
+      legend.position = "none",
+      panel.grid.major = element_line(colour="#F0F0F0"),#grid lines
+      plot.margin = margin(l=1, r=1, unit = "cm"),
+      panel.background = element_blank() #Blanking background
+    )
+
+# axis of plots starting at 0
+# https://stackoverflow.com/questions/53745875/two-separate-y-axis-titles-for-two-facets-of-a-plot-while-keeping-the-facet-top?noredirect=1&lq=1
+
+# Plot for q1
+fig2_plot_q1 <- ggplot(data=fig2_q1q2 %>% filter(order == 1), 
+                       aes(x=altura, y =qd, color = altura)) +
+  geom_point(size=4) +
+  geom_errorbar(aes(ymin=qd.lcl, ymax=qd.ucl), width = 0.3, size= 1.5) +
+  scale_color_manual(values=band_pal, name = "Altitudinal band: ") + #color scales 
+  labs(y ="Shannon's entropy") + fig2_theme
+
+# Plot for q2
+fig2_plot_q2 <- ggplot(data=fig2_q1q2 %>% filter(order == 2), 
+                       aes(x=altura, y =qd, color = altura)) +
+  geom_point(size=4) +
+  geom_errorbar(aes(ymin=qd.lcl, ymax=qd.ucl), width = 0.3, size= 1.5) +
+  scale_color_manual(values=band_pal, name = "Altitudinal band: ") + #color scales 
+  labs(y ="Simpson's diversity") + fig2_theme
+
+# Plot for abundance
+fig2_plot_abund <- ggplot() +
+  geom_col(data=abundance_fig2, aes(x=altura, y =qd, fill = altura)) +
+  scale_fill_manual(values=band_pal, name = "Altitudinal band: ") + #fill colors
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 110))+ #axis starting at 0
+  labs(y ="Number of individuals") + fig2_theme
+
+#this starts the saving the plot command
+jpeg(file="Results/fig2_q1q2abund.jpeg",width=350,height=120,
+     units="mm",res=1300, pointsize=12) 
+
+# It combines the three plots, common legend and labels
+ggarrange(fig2_plot_abund, fig2_plot_q1, fig2_plot_q2, ncol=3, common.legend = TRUE, 
+          legend="bottom", labels = c("A", "B", "C"))
+
+dev.off() #this finishes the saving the plot command
+
 
 ## END
