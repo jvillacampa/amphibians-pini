@@ -171,7 +171,7 @@ ggplot(rarefaction_data, aes(x = m, y = qd, group = altura)) +
   #Layout
   theme(text = element_text(size=20),
         axis.ticks = element_blank(), #taking out ticks from axis
-        axis.text=element_text(size=16), #axis labels size
+        axis.text=element_text(size=16, colour = "black"), #axis labels size
         axis.line = element_line(), #adding lines for both axis
         legend.key=element_blank(), #taking out background from legend
         panel.grid.major = element_line(colour="#F0F0F0"),#grid lines
@@ -183,19 +183,16 @@ dev.off() #this finishes the saving the plot command
 ##########################################################.
 ## Plotting q1, q2, abundance - figure 2 ----
 ##########################################################.
-fig2_q1q2 <- combine_inext(band_div_total, "band") %>% 
-  filter(method == "observed" & order != "0") %>% 
-  mutate(altura = factor(altura, levels = c("450 - 550", "650 - 750", "850 - 950", "1050 - 1150")))
+# Preparing data for figure
+fig2_data <- combine_inext(band_div_total, "band") %>% 
+  filter(method == "observed" & order != "0") 
 
-abundance_fig2 <- fig2_q1q2 %>% select(m, altura) %>% mutate(order = "Abundance") %>% 
+abundance_fig2 <- fig2_data %>% select(m, altura) %>% mutate(order = "Abundance") %>% 
   unique() %>% rename(qd = m)
-
-# fig2_data <- bind_rows(fig2_q1q2, abundance_fig2) %>% 
-#   select(order, qd, qd.lcl, qd.ucl, altura)
 
 # Creating theme for plots in fig2
 fig2_theme <- theme(text = element_text(size=20),
-      axis.text=element_text(size=16), #axis labels size
+      axis.text=element_text(size=16, colour = "black"), #axis labels size
       axis.title.x = element_blank(), #no axis titles
       axis.line = element_line(), #adding lines for both axis
       legend.position = "none",
@@ -204,11 +201,8 @@ fig2_theme <- theme(text = element_text(size=20),
       panel.background = element_blank() #Blanking background
     )
 
-# axis of plots starting at 0
-# https://stackoverflow.com/questions/53745875/two-separate-y-axis-titles-for-two-facets-of-a-plot-while-keeping-the-facet-top?noredirect=1&lq=1
-
 # Plot for q1
-fig2_plot_q1 <- ggplot(data=fig2_q1q2 %>% filter(order == 1), 
+fig2_plot_q1 <- ggplot(data=fig2_data %>% filter(order == 1), 
                        aes(x=altura, y =qd, color = altura)) +
   geom_point(size=4) +
   geom_errorbar(aes(ymin=qd.lcl, ymax=qd.ucl), width = 0.3, size= 1.5) +
@@ -216,7 +210,7 @@ fig2_plot_q1 <- ggplot(data=fig2_q1q2 %>% filter(order == 1),
   labs(y ="Shannon's entropy") + fig2_theme
 
 # Plot for q2
-fig2_plot_q2 <- ggplot(data=fig2_q1q2 %>% filter(order == 2), 
+fig2_plot_q2 <- ggplot(data=fig2_data %>% filter(order == 2), 
                        aes(x=altura, y =qd, color = altura)) +
   geom_point(size=4) +
   geom_errorbar(aes(ymin=qd.lcl, ymax=qd.ucl), width = 0.3, size= 1.5) +
@@ -230,15 +224,101 @@ fig2_plot_abund <- ggplot() +
   scale_y_continuous(expand = c(0, 0), limits = c(0, 110))+ #axis starting at 0
   labs(y ="Number of individuals") + fig2_theme
 
-#this starts the saving the plot command
-jpeg(file="Results/fig2_q1q2abund.jpeg",width=350,height=120,
-     units="mm",res=1300, pointsize=12) 
+# Creating final plot combining previous 3
+fig2_arranged <- ggarrange(fig2_plot_abund, fig2_plot_q1, fig2_plot_q2, ncol=3, common.legend = TRUE, 
+                           legend="bottom", labels = c("A", "B", "C"))
+# Saving plot
+ggsave("Results/fig2_q1q2abun.jpeg", plot= fig2_arranged, device = "jpeg", dpi=1000,
+       width =20, height = 4)
 
-# It combines the three plots, common legend and labels
-ggarrange(fig2_plot_abund, fig2_plot_q1, fig2_plot_q2, ncol=3, common.legend = TRUE, 
+##########################################################.
+## Plotting functional group richness, abundance - figure 3 ----
+##########################################################.
+# Preparing data for figure
+fig3_weight_data <- rbind(#combining weight group inext results
+    combine_inext(band_div_less2, "band", "< 2.5g") %>% mutate(group = "< 2.5g"),
+    combine_inext(band_div_2to10, "band", "2.5 - 10g") %>% mutate(group = "2.5 - 10g"),
+    rbind(
+      band_div_more10[["iNextEst"]][["B500> 10g"]] %>% mutate(altura = "450 - 550"),
+      band_div_more10[["iNextEst"]][["B700> 10g"]] %>% mutate(altura = "650 - 750"),
+      band_div_more10[["iNextEst"]][["B1100> 10g"]] %>% mutate(altura = "1050 - 1150")) %>% 
+      mutate(altura = factor(altura, levels = c("450 - 550", "650 - 750", 
+                                              "850 - 950", "1050 - 1150"))) %>% 
+      setNames(tolower(names(.))) %>% mutate(group = "> 10g")) %>% 
+  mutate(cat = "weight") %>% 
+  filter(method == "observed" & order == "0") 
+
+abundance_fig3_weight <- fig3_weight_data %>% select(m, altura, group, cat) %>% 
+  mutate(order = "Abundance") %>% unique() %>% rename(qd = m)
+
+# For habitat
+fig3_hab_data <- rbind(#combining habitat group inext results
+    combine_inext(band_div_semiarb, "band", "Semiarboreal") %>% mutate(group = "semiarb"),
+    combine_inext(band_div_terrest, "band", "Terrestrial") %>% mutate(group = "terr"),
+    rbind(
+      band_div_arboreal[["iNextEst"]][["B500Arboreal"]] %>% mutate(altura = "450 - 550"),
+      band_div_arboreal[["iNextEst"]][["B700Arboreal"]] %>% mutate(altura = "650 - 750")) %>% 
+      mutate(altura = factor(altura, levels = c("450 - 550", "650 - 750", 
+                                                "850 - 950", "1050 - 1150"))) %>% 
+      setNames(tolower(names(.))) %>% mutate(group = "arb")) %>% 
+  mutate(cat = "habitat") %>% 
+  filter(method == "observed" & order == "0") 
+
+abundance_fig3_hab <- fig3_hab_data %>% select(m, altura, group, cat) %>% 
+  mutate(order = "Abundance") %>% unique() %>% rename(qd = m)
+
+# For reproductive habitat
+fig3_repr_data <- rbind(#combining habitat group inext results
+  combine_inext(band_div_otherrep, "band", "Other") %>% mutate(group = "otherrep"),
+  rbind(
+    band_div_water[["iNextEst"]][["B500Bodies of water"]] %>% mutate(altura = "450 - 550"),
+    band_div_water[["iNextEst"]][["B700Bodies of water"]] %>% mutate(altura = "650 - 750"),
+    band_div_water[["iNextEst"]][["B1100Bodies of water"]] %>% mutate(altura = "1050 - 1150")) %>%  
+    mutate(altura = factor(altura, levels = c("450 - 550", "650 - 750", 
+                                              "850 - 950", "1050 - 1150"))) %>% 
+    setNames(tolower(names(.))) %>% mutate(group = "water")) %>% 
+  mutate(cat = "repr") %>% 
+  filter(method == "observed" & order == "0") 
+
+abundance_fig3_repr <- fig3_repr_data %>% select(m, altura, group, cat) %>% 
+  mutate(order = "Abundance") %>% unique() %>% rename(qd = m)
+
+##########################################################.
+# Plots
+# put lines between charts. include 0s for absent groups
+# one dataset per category, levels for each cat
+# create function for plotting
+# what about common y axis
+# group names need fixing
+fig3_weight_q0 <- ggplot(data=fig3_weight_data, 
+                       aes(x=altura, y =qd, color = altura)) +
+  geom_point(size=4) +
+  geom_errorbar(aes(ymin=qd.lcl, ymax=qd.ucl), width = 0.3, size= 1.5) +
+  facet_wrap(.~ group, nrow =1) +
+  scale_color_manual(values=band_pal, name = "Altitudinal band: ") + #color scales 
+  labs(y ="Number of species") + fig2_theme
+
+fig3_hab_q0 <- ggplot(data=fig3_hab_data, 
+                         aes(x=altura, y =qd, color = altura)) +
+  geom_point(size=4) +
+  geom_errorbar(aes(ymin=qd.lcl, ymax=qd.ucl), width = 0.3, size= 1.5) +
+  facet_wrap(.~ group, nrow =1) +
+  scale_color_manual(values=band_pal, name = "Altitudinal band: ") + #color scales 
+  labs(y ="Number of species") + fig2_theme
+
+fig3_repr_q0 <- ggplot(data=fig3_repr_data, 
+                         aes(x=altura, y =qd, color = altura)) +
+  geom_point(size=4) +
+  geom_errorbar(aes(ymin=qd.lcl, ymax=qd.ucl), width = 0.3, size= 1.5) +
+  facet_wrap(.~ group, nrow =1) +
+  scale_color_manual(values=band_pal, name = "Altitudinal band: ") + #color scales 
+  labs(y ="Number of species") + fig2_theme
+
+##########################################################
+# Joining plots
+
+ggarrange(fig3_repr_q0, fig3_hab_q0+ rremove("ylab") + rremove("y.axis"), fig3_weight_q0, ncol=3, common.legend = TRUE, 
           legend="bottom", labels = c("A", "B", "C"))
-
-dev.off() #this finishes the saving the plot command
 
 
 ## END
