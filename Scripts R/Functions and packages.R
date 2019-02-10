@@ -61,13 +61,13 @@ calculate_kruskal <- function(vars_group, type, selection) {
 
 ##########################################################.
 # Function to combine together results from inext. It's also used in save_model_file()
-combine_inext <- function(results_list, type) {
+combine_inext <- function(results_list, type, func_group = NULL) {
   if (type == "band") {
     rbind(
-      results_list[["iNextEst"]][["B500"]] %>% mutate(altura = "450 - 550"),
-      results_list[["iNextEst"]][["B700"]] %>% mutate(altura = "650 - 750"),
-      results_list[["iNextEst"]][["B900"]] %>% mutate(altura = "850 - 950"),
-      results_list[["iNextEst"]][["B1100"]] %>% mutate(altura = "1050 - 1150")) %>% 
+      results_list[["iNextEst"]][[paste0("B500", func_group)]] %>% mutate(altura = "450 - 550"),
+      results_list[["iNextEst"]][[paste0("B700", func_group)]] %>% mutate(altura = "650 - 750"),
+      results_list[["iNextEst"]][[paste0("B900", func_group)]] %>% mutate(altura = "850 - 950"),
+      results_list[["iNextEst"]][[paste0("B1100", func_group)]] %>% mutate(altura = "1050 - 1150")) %>% 
       mutate(altura = factor(altura, levels = c("450 - 550", "650 - 750", 
                                                 "850 - 950", "1050 - 1150"))) %>% 
       setNames(tolower(names(.))) 
@@ -76,7 +76,7 @@ combine_inext <- function(results_list, type) {
     do.call("rbind", results_list[["iNextEst"]]) %>% 
       mutate(transect = substr(row.names(.), 1, unlist(gregexpr("\\.", row.names(.))) - 1)) %>% 
       setNames(tolower(names(.))) 
-  }
+  } 
 
 }
 
