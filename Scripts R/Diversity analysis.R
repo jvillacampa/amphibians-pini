@@ -241,84 +241,98 @@ fig3_weight_data <- rbind(#combining weight group inext results
     rbind(
       band_div_more10[["iNextEst"]][["B500> 10g"]] %>% mutate(altura = "450 - 550"),
       band_div_more10[["iNextEst"]][["B700> 10g"]] %>% mutate(altura = "650 - 750"),
-      band_div_more10[["iNextEst"]][["B1100> 10g"]] %>% mutate(altura = "1050 - 1150")) %>% 
+      band_div_more10[["iNextEst"]][["B1100> 10g"]] %>% mutate(altura = "1050 - 1150") %>% unique()) %>% 
       mutate(altura = factor(altura, levels = c("450 - 550", "650 - 750", 
                                               "850 - 950", "1050 - 1150"))) %>% 
       setNames(tolower(names(.))) %>% mutate(group = "> 10g")) %>% 
-  mutate(cat = "weight") %>% 
-  filter(method == "observed" & order == "0") 
+  mutate(cat = "weight") 
 
-abundance_fig3_weight <- fig3_weight_data %>% select(m, altura, group, cat) %>% 
-  mutate(order = "Abundance") %>% unique() %>% rename(qd = m)
+# abundance_fig3_weight <- fig3_weight_data %>% select(m, altura, group, cat) %>% 
+#   mutate(order = "Abundance") %>% unique() %>% rename(qd = m)
 
 # For habitat
 fig3_hab_data <- rbind(#combining habitat group inext results
-    combine_inext(band_div_semiarb, "band", "Semiarboreal") %>% mutate(group = "semiarb"),
-    combine_inext(band_div_terrest, "band", "Terrestrial") %>% mutate(group = "terr"),
+    combine_inext(band_div_semiarb, "band", "Semiarboreal") %>% mutate(group = "Semiarboreal"),
+    combine_inext(band_div_terrest, "band", "Terrestrial") %>% mutate(group = "Terrestrial"),
     rbind(
       band_div_arboreal[["iNextEst"]][["B500Arboreal"]] %>% mutate(altura = "450 - 550"),
       band_div_arboreal[["iNextEst"]][["B700Arboreal"]] %>% mutate(altura = "650 - 750")) %>% 
       mutate(altura = factor(altura, levels = c("450 - 550", "650 - 750", 
                                                 "850 - 950", "1050 - 1150"))) %>% 
-      setNames(tolower(names(.))) %>% mutate(group = "arb")) %>% 
-  mutate(cat = "habitat") %>% 
-  filter(method == "observed" & order == "0") 
+      setNames(tolower(names(.))) %>% mutate(group = "Arboreal")) %>% 
+  mutate(cat = "habitat") 
 
-abundance_fig3_hab <- fig3_hab_data %>% select(m, altura, group, cat) %>% 
-  mutate(order = "Abundance") %>% unique() %>% rename(qd = m)
+# abundance_fig3_hab <- fig3_hab_data %>% select(m, altura, group, cat) %>% 
+#   mutate(order = "Abundance") %>% unique() %>% rename(qd = m)
 
 # For reproductive habitat
 fig3_repr_data <- rbind(#combining habitat group inext results
-  combine_inext(band_div_otherrep, "band", "Other") %>% mutate(group = "otherrep"),
+  combine_inext(band_div_otherrep, "band", "Other") %>% mutate(group = "Other reproductive habitats"),
   rbind(
     band_div_water[["iNextEst"]][["B500Bodies of water"]] %>% mutate(altura = "450 - 550"),
     band_div_water[["iNextEst"]][["B700Bodies of water"]] %>% mutate(altura = "650 - 750"),
-    band_div_water[["iNextEst"]][["B1100Bodies of water"]] %>% mutate(altura = "1050 - 1150")) %>%  
+    band_div_water[["iNextEst"]][["B1100Bodies of water"]] %>% mutate(altura = "1050 - 1150") %>% unique) %>%  
     mutate(altura = factor(altura, levels = c("450 - 550", "650 - 750", 
                                               "850 - 950", "1050 - 1150"))) %>% 
-    setNames(tolower(names(.))) %>% mutate(group = "water")) %>% 
-  mutate(cat = "repr") %>% 
-  filter(method == "observed" & order == "0") 
+    setNames(tolower(names(.))) %>% mutate(group = "Pond/stream breeders")) %>% 
+  mutate(cat = "repr") 
 
-abundance_fig3_repr <- fig3_repr_data %>% select(m, altura, group, cat) %>% 
+# abundance_fig3_repr <- fig3_repr_data %>% select(m, altura, group, cat) %>% 
+#   mutate(order = "Abundance") %>% unique() %>% rename(qd = m)
+
+fig3_q0_data <- rbind(fig3_weight_data, fig3_hab_data, fig3_repr_data) %>% 
+  filter(method == "observed" & order == "0") %>% 
+  mutate(group = factor(group, 
+                        levels= c("< 2.5g", "2.5 - 10g", "> 10g", "Terrestrial", "Semiarboreal", 
+                                  "Arboreal", "Bodies of water", "Other reproductive habitats")))
+
+# Creating list with all combinations to be able to create 0s
+group_band <- expand.grid(group= fig3_q0_data$group, altura = fig3_q0_data$altura) %>% 
+  unique()
+
+# Merging with fig3 data to obtain rows with 0s
+fig3_q0_data <- left_join(group_band, fig3_q0_data, by = c("group", "altura")) %>% 
+  mutate_if(is.numeric, funs(replace(., is.na(.), 0)))
+
+abundance_fig3 <- fig3_q0_data %>% select(m, altura, group, cat) %>% 
   mutate(order = "Abundance") %>% unique() %>% rename(qd = m)
+
 
 ##########################################################.
 # Plots
-# put lines between charts. include 0s for absent groups
-# one dataset per category, levels for each cat
-# create function for plotting
-# what about common y axis
-# group names need fixing
-fig3_weight_q0 <- ggplot(data=fig3_weight_data, 
-                       aes(x=altura, y =qd, color = altura)) +
-  geom_point(size=4) +
-  geom_errorbar(aes(ymin=qd.lcl, ymax=qd.ucl), width = 0.3, size= 1.5) +
-  facet_wrap(.~ group, nrow =1) +
-  scale_color_manual(values=band_pal, name = "Altitudinal band: ") + #color scales 
-  labs(y ="Number of species") + fig2_theme
-
-fig3_hab_q0 <- ggplot(data=fig3_hab_data, 
+# group names need fixing, labels too long
+# different colour labels for each set of groups (need to go back to a plot per category?)
+# q0 plot
+fig3_q0_plot <- ggplot(data=fig3_q0_data, 
                          aes(x=altura, y =qd, color = altura)) +
   geom_point(size=4) +
   geom_errorbar(aes(ymin=qd.lcl, ymax=qd.ucl), width = 0.3, size= 1.5) +
   facet_wrap(.~ group, nrow =1) +
-  scale_color_manual(values=band_pal, name = "Altitudinal band: ") + #color scales 
-  labs(y ="Number of species") + fig2_theme
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 15))+ #axis starting at 0
+    scale_color_manual(values=band_pal, name = "Altitudinal band: ") + #color scales 
+  labs(y ="Number of species") + fig2_theme +
+  theme(panel.background = element_rect(fill = NA, color = "black"),
+        axis.text.x = element_blank(), 
+        axis.ticks.x =element_blank(),
+        panel.grid.major = element_blank()) #grid lines
 
-fig3_repr_q0 <- ggplot(data=fig3_repr_data, 
-                         aes(x=altura, y =qd, color = altura)) +
-  geom_point(size=4) +
-  geom_errorbar(aes(ymin=qd.lcl, ymax=qd.ucl), width = 0.3, size= 1.5) +
+# Abundance plots
+fig3_abund_plot <- ggplot() +
+  geom_col(data=abundance_fig3, aes(x=altura, y =qd, fill = altura)) +
   facet_wrap(.~ group, nrow =1) +
-  scale_color_manual(values=band_pal, name = "Altitudinal band: ") + #color scales 
-  labs(y ="Number of species") + fig2_theme
+  scale_fill_manual(values=band_pal, name = "Altitudinal band: ") + #fill colors
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 110))+ #axis starting at 0
+  labs(y ="Number of individuals") + fig2_theme +
+  theme(panel.background = element_rect(fill = NA, color = "black"),
+        axis.text.x = element_blank(), 
+        axis.ticks.x =element_blank(),
+        panel.grid.major = element_blank()) #grid lines
 
 ##########################################################
-# Joining plots
+# Joining and saving plots
 
-ggarrange(fig3_repr_q0, fig3_hab_q0+ rremove("ylab") + rremove("y.axis"), fig3_weight_q0, ncol=3, common.legend = TRUE, 
-          legend="bottom", labels = c("A", "B", "C"))
+ggarrange(fig3_q0_plot, fig3_abund_plot, common.legend = TRUE, nrow = 2,
+          legend="bottom", labels = c("A", "B"))
 
 
 ## END
