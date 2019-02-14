@@ -267,7 +267,7 @@ fig3_hab_data <- rbind(#combining habitat group inext results
 
 # For reproductive habitat
 fig3_repr_data <- rbind(#combining habitat group inext results
-  combine_inext(band_div_otherrep, "band", "Other") %>% mutate(group = "Other reproductive habitats"),
+  combine_inext(band_div_otherrep, "band", "Other") %>% mutate(group = "Other reproductive \n habitats"),
   rbind(
     band_div_water[["iNextEst"]][["B500Bodies of water"]] %>% mutate(altura = "450 - 550"),
     band_div_water[["iNextEst"]][["B700Bodies of water"]] %>% mutate(altura = "650 - 750"),
@@ -284,14 +284,17 @@ fig3_q0_data <- rbind(fig3_weight_data, fig3_hab_data, fig3_repr_data) %>%
   filter(method == "observed" & order == "0") %>% 
   mutate(group = factor(group, 
                         levels= c("< 2.5g", "2.5 - 10g", "> 10g", "Terrestrial", "Semiarboreal", 
-                                  "Arboreal", "Bodies of water", "Other reproductive habitats")))
+                                  "Arboreal", "Pond/stream breeders", "Other reproductive \n habitats")))
 
 # Creating list with all combinations to be able to create 0s
 group_band <- expand.grid(group= fig3_q0_data$group, altura = fig3_q0_data$altura) %>% 
-  unique()
+  unique() 
+
+group_band <- left_join(group_band, fig3_q0_data %>% select(group, cat) %>% unique(),
+                        by = c("group"))
 
 # Merging with fig3 data to obtain rows with 0s
-fig3_q0_data <- left_join(group_band, fig3_q0_data, by = c("group", "altura")) %>% 
+fig3_q0_data <- left_join(group_band, fig3_q0_data, by = c("group", "altura", "cat")) %>% 
   mutate_if(is.numeric, funs(replace(., is.na(.), 0)))
 
 abundance_fig3 <- fig3_q0_data %>% select(m, altura, group, cat) %>% 
@@ -316,7 +319,32 @@ fig3_q0_plot <- ggplot(data=fig3_q0_data,
         axis.ticks.x =element_blank(),
         panel.grid.major = element_blank()) #grid lines
 
+make_q0_plot <- function(dataset, panel_color) {
+  ggplot(data=dataset, aes(x=altura, y =qd, color = altura)) +
+    geom_point(size=4) +
+    geom_errorbar(aes(ymin=qd.lcl, ymax=qd.ucl), width = 0.3, size= 1.5) +
+    facet_wrap(.~ group, nrow =1) +
+    scale_y_continuous(expand = c(0, 0), limits = c(0, 15))+ #axis starting at 0
+    scale_color_manual(values=band_pal, name = "Altitudinal band: ") + #color scales 
+    labs(y ="Number of species") + fig2_theme +
+    theme(panel.background = element_rect(fill = NA, color = "black"),
+          axis.text.x = element_blank(), 
+          axis.ticks.x =element_blank(),
+          strip.background = element_rect(fill=panel_color),
+          panel.grid.major = element_blank()) #grid lines
+}
+
+q0_repr_plot <- make_q0_plot(fig3_q0_data %>% filter(cat == "repr"), "orange")
+q0_hab_plot <- make_q0_plot(fig3_q0_data %>% filter(cat == "habitat"), "gray")
+q0_weight_plot <- make_q0_plot(fig3_q0_data %>% filter(cat == "weight"), "lightblue")
+
+
+##########################################################
 # Abundance plots
+panel_pal <- case_when(abundance_fig3$cat == "repr"  ~ "orange",
+                       abundance_fig3$cat == "habitat"  ~ "lighblue",
+                       abundance_fig3$cat == "weight"  ~ "gray")
+
 fig3_abund_plot <- ggplot() +
   geom_col(data=abundance_fig3, aes(x=altura, y =qd, fill = altura)) +
   facet_wrap(.~ group, nrow =1) +
@@ -326,10 +354,40 @@ fig3_abund_plot <- ggplot() +
   theme(panel.background = element_rect(fill = NA, color = "black"),
         axis.text.x = element_blank(), 
         axis.ticks.x =element_blank(),
+        strip.background = element_rect(fill=panel_pal),
         panel.grid.major = element_blank()) #grid lines
+
+make_abund_plot <- function(dataset, panel_pal) {
+
+  ggplot() +
+    geom_col(data=dataset, aes(x=altura, y =qd, fill = altura)) +
+    facet_wrap(.~ group, nrow =1) +
+    scale_fill_manual(values=band_pal, name = "Altitudinal band: ") + #fill colors
+    scale_y_continuous(expand = c(0, 0), limits = c(0, 110))+ #axis starting at 0
+    labs(y ="Number of individuals") + fig2_theme +
+    theme(panel.background = element_rect(fill = NA, color = "black"),
+          axis.text.x = element_blank(), 
+          axis.ticks.x =element_blank(),
+          strip.background = element_rect(fill=panel_pal),
+          panel.grid.major = element_blank()) #grid lines
+}
+
+abun_group_plot <- make_abund_plot(abundance_fig3)
+
+abun_repr_plot <- make_abund_plot(abundance_fig3 %>% filter(cat == "repr"), "orange")
+abun_hab_plot <- make_abund_plot(abundance_fig3 %>% filter(cat == "habitat"), "gray")
+abun_weight_plot <- make_abund_plot(abundance_fig3 %>% filter(cat == "weight"), "lightblue")
 
 ##########################################################
 # Joining and saving plots
+
+fig3_arranged <- ggarrange(q0_repr_plot, q0_weight_plot, q0_hab_plot, abun_repr_plot, abun_weight_plot, 
+          abun_hab_plot, common.legend = TRUE, ncol = 3, nrow = 2,
+          legend="bottom", labels = c("A", "B", "C", "D", "E", "F"))
+
+# Saving plot
+ggsave("Results/fig3_group_q0abun.jpeg", plot= fig3_arranged, device = "jpeg", dpi=1000,
+       width =20, height = 4)
 
 ggarrange(fig3_q0_plot, fig3_abund_plot, common.legend = TRUE, nrow = 2,
           legend="bottom", labels = c("A", "B"))
