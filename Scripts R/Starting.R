@@ -9,7 +9,7 @@ source("Scripts R/Functions and packages.R")
 amph_data <- read_excel("Datos/raw_data/Amphibian_survey_data.xlsx", 
                    sheet = "Data", range = "A1:R575") %>% 
   setNames(tolower(names(.))) %>% #variables to lower case
-  # selecting only amphibians in ves, exlcuding audio records
+  # selecting only amphibians in ves, exlcuding audio records - not standardly surveyed
   filter(observation_type == "VES" & class == "Amphibia" & 
            (notes != "audio" | is.na(notes))) %>%
   #adenomera sp1 same as a.andreae
