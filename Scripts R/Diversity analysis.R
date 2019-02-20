@@ -130,13 +130,13 @@ save_model_file(transect_div_semiarb, "modeldata_semiarb")
 simil_chao <- vegdist(simil_basedata, method = "chao") %>% -1 %>% abs() %>%
   round(.,2) %>% as.matrix() %>% as.data.frame() #needed to be saved as csv
 
-write_csv2(simil_chao, "Results/diversity/simil_chao.csv")
+write_csv2(simil_chao, "Results/simil_chao.csv")
 
 # What if reichlei and cf.reichlei were the same
 simil_chao_nodanae <- vegdist(simil_basedata_nodanae, method = "chao") %>% -1 %>% abs() %>%
   round(.,2) %>% as.matrix() %>% as.data.frame() #needed to be saved as csv
 
-write_csv2(simil_chao_nodanae, "Results/diversity/simil_chao_nodanae.csv")
+write_csv2(simil_chao_nodanae, "Results/simil_chao_nodanae.csv")
 
 ##########################################################.
 ## Plotting rarefaction -figure1 ----

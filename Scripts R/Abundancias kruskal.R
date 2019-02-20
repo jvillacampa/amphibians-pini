@@ -65,7 +65,7 @@ abun_spec_table <- amph_data %>% group_by(species, site) %>% count() %>%
 abun_spec_table <- left_join(abun_spec_table, kruskal_results, by = "species") %>% 
   mutate_all(funs(replace(., is.na(.), "-"))) #joining with kruskal pvalue
 
-write_csv2(abun_spec_table, "Results/abundance/abun_spec_table.csv")
+write_csv2(abun_spec_table, "Results/abun_spec_table.csv")
 
 # Creating table needed with group abundances by band and kruskal p values
 abun_func_table <- amph_data %>% # making long format to then aggregate
@@ -76,7 +76,7 @@ abun_func_table <- amph_data %>% # making long format to then aggregate
 abun_func_table <- left_join(abun_func_table, kruskal_results, by = c("func_cat" = "species")) %>% 
   mutate_all(funs(replace(., is.na(.), "-"))) #joining with kruskal pvalue
 
-write_csv2(abun_func_table, "Results/abundance/abun_func_table.csv")
+write_csv2(abun_func_table, "Results/abun_func_table.csv")
 
 
 ## End
