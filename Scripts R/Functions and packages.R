@@ -109,4 +109,26 @@ save_model_file <- function(results_list, filename) {
   
 }
 
+##########################################################.
+# Function to extract coefficients and estimates from models and format them.
+extract_model_values <- function(modelname, group_mod, band500, band700, band900) {
+  model_table <- data.frame(model = modelname, group_mod = group_mod,
+                            reference = c("450-550 vs 650-750", "450-550 vs 850-950",
+                                          "450-550 vs 1050-1150", "650-750 vs 850-950",
+                                          "650-750 vs 1050-1150", "850-950 vs 1050-1150")) %>% 
+    mutate(coefficient = case_when(reference == "450-550 vs 650-750" ~ band500$coefficient["site700"],
+                                   reference == "450-550 vs 850-950" ~ band500$coefficient["site900"],
+                                   reference == "450-550 vs 1050-1150" ~ band500$coefficient["site1100"],
+                                   reference == "650-750 vs 850-950" ~ band700$coefficient[3],
+                                   reference == "650-750 vs 1050-1150" ~ band700$coefficient[4],
+                                   reference == "850-950 vs 1050-1150" ~ band900$coefficient[4]),
+           pvalue = case_when(reference == "450-550 vs 650-750" ~ summary(band500)$coefficients[2,4] ,
+                              reference == "450-550 vs 850-950" ~ summary(band500)$coefficients[3,4] ,
+                              reference == "450-550 vs 1050-1150" ~ summary(band500)$coefficients[4,4] ,
+                              reference == "650-750 vs 850-950" ~ summary(band700)$coefficients[3,4] ,
+                              reference == "650-750 vs 1050-1150" ~ summary(band700)$coefficients[4,4] ,
+                              reference == "850-950 vs 1050-1150" ~ summary(band900)$coefficients[4,4] ))
+  
+}
+
 # END
