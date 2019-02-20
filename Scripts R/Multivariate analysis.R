@@ -53,7 +53,8 @@ jpeg(file="Results/pca_plot_jan19.jpeg",width=190,height=100,
 # create palette of shapes
 
 ggplot() +
-  geom_point(data = scores_transects, aes(x = pc1, y=pc2, shape = band, color = band)) +
+  geom_point(data = scores_transects, aes(x = pc1, y=pc2, shape = band, 
+                                          color = band), size = 4) +
   geom_segment(data = scores_envvar, arrow = arrow(length = unit(0.3,"cm")),
                aes(x=0, xend=pc1, y=0, yend=pc2)) +
   geom_text(data = scores_envvar, aes(label = env_var, x = pc1, y=arrow_pc2)) +
