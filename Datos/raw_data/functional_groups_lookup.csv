@@ -1,0 +1,23 @@
+species;reproduction;habitat;weight_group;species_abr
+Rhinella margaritifera;Bodies of water;Terrestrial;> 10g;Rg
+Rhinella marina;Bodies of water;Terrestrial;> 10g;Rm
+Noblella spA;Other;Terrestrial;< 2.5g;Ns
+Oreobates amarakaeri;Other;Terrestrial;2.5 - 10g;Oa
+Pristimantis altamazonicus;Other;Semiarboreal;< 2.5g;Pa
+Pristimantis buccinator;Other;Semiarboreal;< 2.5g;Pb
+Pristimantis carvalhoi;Other;Semiarboreal;< 2.5g;Pc
+Pristimantis danae;Other;Semiarboreal;2.5 - 10g;Pd
+Pristimantis cf. diadematus;Other;Semiarboreal;2.5 - 10g;Pi
+Pristimantis ockendeni;Other;Semiarboreal;< 2.5g;Pk
+Pristimantis olivaceus;Other;Semiarboreal;< 2.5g;Po
+Pristimantis reichlei;Other;Semiarboreal;2.5 - 10g;Pr
+Pristimantis cf. salaputium;Other;Semiarboreal;< 2.5g;Ps
+Pristimantis spA;Other;Semiarboreal;< 2.5g;Pl
+Ameerega macero;Bodies of water;Terrestrial;2.5 - 10g;Am
+Ameerega shihuemoy;Bodies of water;Terrestrial;< 2.5g;As
+Boana geographica;Bodies of water;Arboreal;> 10g;Bg
+Osteocephalus castaneicola;Other;Arboreal;> 10g;Oc
+Callimedusa tomopterna;Bodies of water;Arboreal;2.5 - 10g;Ct
+Adenomera andreae;Other;Terrestrial;< 2.5g;Aa
+Lithodytes lineatus;Other;Terrestrial;> 10g;Ll
+Bolitoglossa altamazonica;Other;Semiarboreal;< 2.5g;Ba
