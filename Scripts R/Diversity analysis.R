@@ -66,7 +66,7 @@ simil_basedata_nodanae <- amph_data %>%
   ungroup() %>% column_to_rownames(., "site") 
 
 ##########################################################.
-## Alpha diversity analisys ----
+## Alpha diversity analysis ----
 ##########################################################.
 # running alpha diversity analysis. 
 # Endpoint double minimum sample size (Colwell et al.)
@@ -131,6 +131,13 @@ simil_chao <- vegdist(simil_basedata, method = "chao") %>% -1 %>% abs() %>%
   round(.,2) %>% as.matrix() %>% as.data.frame() #needed to be saved as csv
 
 write_csv2(simil_chao, "Results/simil_chao.csv")
+
+# Partinioning beta diversity into richness and replacement components
+# This function only work with normal Jaccard and no Chao-Jaccard
+# https://onlinelibrary.wiley.com/doi/full/10.1111/geb.12207 - for lit reference
+simil_partinioning <- beta.div.comp(simil_basedata, coef="J", quant=TRUE)
+simil_partinioning
+simil_partinioning$part # Most of beta diversity is due to replacement (77%)
 
 # What if reichlei and cf.reichlei were the same
 simil_chao_nodanae <- vegdist(simil_basedata_nodanae, method = "chao") %>% -1 %>% abs() %>%
@@ -315,8 +322,10 @@ fig3_q0_plot <- ggplot(data=fig3_q0_data,
     scale_color_manual(values=band_pal, name = "Altitudinal band: ") + #color scales 
   labs(y ="Number of species") + fig2_theme +
   theme(panel.background = element_rect(fill = NA, color = "black"),
-        axis.text.x = element_blank(), 
+        axis.text.x = element_blank(),
         axis.ticks.x =element_blank(),
+        plot.margin = unit(c(0.3,0.3,0.3,0.3), "cm"),
+        axis.title.y = element_text(margin = unit(c(0, 1, 0, 0), "cm")),
         panel.grid.major = element_blank()) #grid lines
 
 make_q0_plot <- function(dataset, panel_color) {
@@ -339,11 +348,8 @@ q0_hab_plot <- make_q0_plot(fig3_q0_data %>% filter(cat == "habitat"), "gray")
 q0_weight_plot <- make_q0_plot(fig3_q0_data %>% filter(cat == "weight"), "lightblue")
 
 
-##########################################################
+##########################################################.
 # Abundance plots
-panel_pal <- case_when(abundance_fig3$cat == "repr"  ~ "orange",
-                       abundance_fig3$cat == "habitat"  ~ "lighblue",
-                       abundance_fig3$cat == "weight"  ~ "gray")
 
 fig3_abund_plot <- ggplot() +
   geom_col(data=abundance_fig3, aes(x=altura, y =qd, fill = altura)) +
@@ -354,7 +360,8 @@ fig3_abund_plot <- ggplot() +
   theme(panel.background = element_rect(fill = NA, color = "black"),
         axis.text.x = element_blank(), 
         axis.ticks.x =element_blank(),
-        strip.background = element_rect(fill=panel_pal),
+        axis.title.y = element_text(margin = unit(c(0, 0.8, 0, 0), "cm")),
+        plot.margin = unit(c(0.3,0.3,0.3,0.3), "cm"),
         panel.grid.major = element_blank()) #grid lines
 
 make_abund_plot <- function(dataset, panel_pal) {
@@ -385,12 +392,14 @@ fig3_arranged <- ggarrange(q0_repr_plot, q0_weight_plot, q0_hab_plot, abun_repr_
           abun_hab_plot, common.legend = TRUE, ncol = 3, nrow = 2,
           legend="bottom", labels = c("A", "B", "C", "D", "E", "F"))
 
+fig3_arranged <-ggarrange(fig3_q0_plot, fig3_abund_plot, common.legend = TRUE, nrow = 2,
+                          legend="bottom", labels = c("A", "B"))
+
 # Saving plot
 ggsave("Results/fig3_group_q0abun.jpeg", plot= fig3_arranged, device = "jpeg", dpi=1000,
-       width =20, height = 4)
+       width =20, height = 7)
 
-ggarrange(fig3_q0_plot, fig3_abund_plot, common.legend = TRUE, nrow = 2,
-          legend="bottom", labels = c("A", "B"))
+
 
 
 ## END
