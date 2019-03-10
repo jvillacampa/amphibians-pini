@@ -1,5 +1,5 @@
-# Code used for analysis of data on amphibian communities changes with altitude
-In this respository you can find the code used to produce the data for
+# Analysis of amphibian communities changes with altitude
+In this respository you can find the code used to analyze the data presented in .... 
 ## Scripts R
 - 1-creating_basefiles: This script needs to be run first. It creates the basefiles that will be used through the analysis.
 - Functions and packages: Includes functions and packages used in the analysis. It is called in the rest of scripts.
