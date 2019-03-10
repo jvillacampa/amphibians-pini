@@ -2,6 +2,14 @@
 
 # bringing packages and functions
 source("Scripts R/Functions and packages.R")
+
+##########################################################.
+## Creating directory structure ----
+##########################################################.
+# Creating folders that will be used through the analysis.
+dir.create("Datos/prepared_data") # for prepared basefiles
+dir.create("Results/") # for results
+
 ##########################################################.
 ## Basefile data ----
 ##########################################################.
