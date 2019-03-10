@@ -9,9 +9,10 @@ In this respository you can find the code used to analyze the data presented in 
 - Multivariate analysis: Principal component analysis for the forest structure data.
 - Whittaker plots: Looking at community structure using Whittaker plots. Not used in manuscript.
 - session-info: list that includes the R version and the packages used.
-##Datos/raw_data
-It includes all the data collected during the study
+
+## Datos/raw_data
+This folder includes all the data collected during the study:
 - amphibian_survey_data: dataset with all observation of herpetofauna recorded during the study.
 - functional_groups_lookup: list of species and their functional groups.
-- vegmap_transect_data: aggregated data on forest structure variables for each one of the transects
-- weather_data: weather data collected for each of the altitudinal bands
+- vegmap_transect_data: aggregated data on forest structure variables for each one of the transects.
+- weather_data: weather data collected for each of the altitudinal bands.
