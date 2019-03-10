@@ -30,28 +30,12 @@ kruskal_results <- rbind(
   calculate_kruskal(vars_group = c("species", "group"), type = "species", 
                     selection = "Pristimantis reichlei"), 
   calculate_kruskal(vars_group = c("species", "group"), type = "species", 
-                  selection = "Pristimantis sp3"), 
-  calculate_kruskal(vars_group = c("reproduction", "group"), type = "reproduction", 
-                    selection = "Bodies of water"), 
-  calculate_kruskal(vars_group = c("reproduction", "group"), type = "reproduction", 
-                    selection = "Other"), 
-  calculate_kruskal(vars_group = c("weight_group", "group"), type = "weight", 
-                    selection = "< 2.5g"), 
-  calculate_kruskal(vars_group = c("weight_group", "group"), type = "weight", 
-                    selection = "2.5 - 10g"), 
-  calculate_kruskal(vars_group = c("weight_group", "group"), type = "weight", 
-                    selection = "> 10g"), 
-  calculate_kruskal(vars_group = c("habitat", "group"), type = "habitat", 
-                       selection = "Terrestrial"), 
-  calculate_kruskal(vars_group = c("habitat", "group"), type = "habitat", 
-                    selection = "Arboreal"), 
-  calculate_kruskal(vars_group = c("habitat", "group"), type = "habitat", 
-                    selection = "Semiarboreal") 
+                  selection = "Pristimantis spA")
 ) 
 
 kruskal_results <- kruskal_results %>% 
-  mutate(pvalue = round(pvalue, 3), 
-         pvalue = case_when(pvalue <= 0.001 ~ paste0("< 0.001*"),
+  mutate(pvalue = round(p.adjust(pvalue, "holm"), 3), # Holm-bonferroni correction
+         pvalue = case_when(pvalue <= 0.001 ~ paste0("> 0.001*"),
                             between(pvalue, 0.001, 0.05) ~ paste0(pvalue, "*"),
                             pvalue > 0.05 ~ paste0(pvalue)))
 
@@ -71,9 +55,7 @@ write_csv2(abun_spec_table, "Results/abun_spec_table.csv")
 abun_func_table <- amph_data %>% # making long format to then aggregate
   gather(func_group, func_cat, habitat, reproduction, weight_group) %>% 
   group_by(func_group, func_cat, site) %>% count() %>% 
-  spread(site, n) %>% ungroup() # converting each band in a column
-
-abun_func_table <- left_join(abun_func_table, kruskal_results, by = c("func_cat" = "species")) %>% 
+  spread(site, n) %>% ungroup() %>%  # converting each band in a column
   mutate_all(funs(replace(., is.na(.), "-"))) #joining with kruskal pvalue
 
 write_csv2(abun_func_table, "Results/abun_func_table.csv")
