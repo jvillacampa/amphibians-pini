@@ -2,12 +2,19 @@
 .Rhistory
 .RData
 .Ruserdata
-.tmp
-Proyecto Peru.Rproj
+*.Rproj
+
+*.[tT][mM][pP]
+*.[dD][oO][cC]
+*.[dD][oO][cC][xX]
 
 todo.R
 
 papeleos/
 Trabajo de campo/
 Manuscripts/
-papers project/
+mapas-imagenes/
+Results/
+Datos/prepared_data
+Datos/raw-nogithub
+1.archive/
