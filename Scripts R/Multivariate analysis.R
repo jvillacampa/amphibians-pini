@@ -13,7 +13,7 @@ pca_veg_data <- veg_mapping %>% column_to_rownames(var="transecto") %>%
   # Renaming variables to make plotting easier
   rename("Canopy height" = altdosel, "Canopy cover" = cobdosel, "Leaf litter depth" = hojarasca,
          "Understory density" = densidad, "Epiphyte abundance" = epifitas, "N trees DBH>10" = arboles,
-         "Necromass abundance" = necromasa, "Fern abundance" = helechos, "Slope" = pendiente)
+         "Coarse wood debris" = necromasa, "Fern abundance" = helechos, "Slope" = pendiente)
 
 ##########################################################.
 ## PCA and plot ----
