@@ -66,9 +66,8 @@ simil_basedata_nodanae <- amph_data %>%
   ungroup() %>% column_to_rownames(., "site") 
 
 ##########################################################.
-## Alpha diversity analysis ----
+## Alpha diversity  ----
 ##########################################################.
-# running alpha diversity analysis. 
 # Endpoint double minimum sample size (Colwell et al.)
 # q0 q1 q2 = richness shannon simpson
 ##########################################################.
@@ -254,12 +253,9 @@ fig3_weight_data <- rbind(#combining weight group inext results
       setNames(tolower(names(.))) %>% mutate(group = "> 10g")) %>% 
   mutate(cat = "weight") 
 
-# abundance_fig3_weight <- fig3_weight_data %>% select(m, altura, group, cat) %>% 
-#   mutate(order = "Abundance") %>% unique() %>% rename(qd = m)
-
 # For habitat
 fig3_hab_data <- rbind(#combining habitat group inext results
-    combine_inext(band_div_semiarb, "band", "Semiarboreal") %>% mutate(group = "Semiarboreal"),
+    combine_inext(band_div_semiarb, "band", "Semiarboreal") %>% mutate(group = "Semi-arboreal"),
     combine_inext(band_div_terrest, "band", "Terrestrial") %>% mutate(group = "Terrestrial"),
     rbind(
       band_div_arboreal[["iNextEst"]][["B500Arboreal"]] %>% mutate(altura = "450 - 550"),
@@ -268,9 +264,6 @@ fig3_hab_data <- rbind(#combining habitat group inext results
                                                 "850 - 950", "1050 - 1150"))) %>% 
       setNames(tolower(names(.))) %>% mutate(group = "Arboreal")) %>% 
   mutate(cat = "habitat") 
-
-# abundance_fig3_hab <- fig3_hab_data %>% select(m, altura, group, cat) %>% 
-#   mutate(order = "Abundance") %>% unique() %>% rename(qd = m)
 
 # For reproductive habitat
 fig3_repr_data <- rbind(#combining habitat group inext results
@@ -284,13 +277,11 @@ fig3_repr_data <- rbind(#combining habitat group inext results
     setNames(tolower(names(.))) %>% mutate(group = "Pond/stream breeders")) %>% 
   mutate(cat = "repr") 
 
-# abundance_fig3_repr <- fig3_repr_data %>% select(m, altura, group, cat) %>% 
-#   mutate(order = "Abundance") %>% unique() %>% rename(qd = m)
-
+# Merging together all the data
 fig3_q0_data <- rbind(fig3_weight_data, fig3_hab_data, fig3_repr_data) %>% 
   filter(method == "observed" & order == "0") %>% 
   mutate(group = factor(group, 
-                        levels= c("< 2.5g", "2.5 - 10g", "> 10g", "Terrestrial", "Semiarboreal", 
+                        levels= c("< 2.5g", "2.5 - 10g", "> 10g", "Terrestrial", "Semi-arboreal", 
                                   "Arboreal", "Pond/stream breeders", "Other reproductive \n habitats")))
 
 # Creating list with all combinations to be able to create 0s
@@ -306,7 +297,6 @@ fig3_q0_data <- left_join(group_band, fig3_q0_data, by = c("group", "altura", "c
 
 abundance_fig3 <- fig3_q0_data %>% select(m, altura, group, cat) %>% 
   mutate(order = "Abundance") %>% unique() %>% rename(qd = m)
-
 
 ##########################################################.
 # Plots
@@ -328,29 +318,8 @@ fig3_q0_plot <- ggplot(data=fig3_q0_data,
         axis.title.y = element_text(margin = unit(c(0, 1, 0, 0), "cm")),
         panel.grid.major = element_blank()) #grid lines
 
-make_q0_plot <- function(dataset, panel_color) {
-  ggplot(data=dataset, aes(x=altura, y =qd, color = altura)) +
-    geom_point(size=4) +
-    geom_errorbar(aes(ymin=qd.lcl, ymax=qd.ucl), width = 0.3, size= 1.5) +
-    facet_wrap(.~ group, nrow =1) +
-    scale_y_continuous(expand = c(0, 0), limits = c(0, 15))+ #axis starting at 0
-    scale_color_manual(values=band_pal, name = "Altitudinal band: ") + #color scales 
-    labs(y ="Number of species") + fig2_theme +
-    theme(panel.background = element_rect(fill = NA, color = "black"),
-          axis.text.x = element_blank(), 
-          axis.ticks.x =element_blank(),
-          strip.background = element_rect(fill=panel_color),
-          panel.grid.major = element_blank()) #grid lines
-}
-
-q0_repr_plot <- make_q0_plot(fig3_q0_data %>% filter(cat == "repr"), "orange")
-q0_hab_plot <- make_q0_plot(fig3_q0_data %>% filter(cat == "habitat"), "gray")
-q0_weight_plot <- make_q0_plot(fig3_q0_data %>% filter(cat == "weight"), "lightblue")
-
-
 ##########################################################.
 # Abundance plots
-
 fig3_abund_plot <- ggplot() +
   geom_col(data=abundance_fig3, aes(x=altura, y =qd, fill = altura)) +
   facet_wrap(.~ group, nrow =1) +
@@ -364,34 +333,9 @@ fig3_abund_plot <- ggplot() +
         plot.margin = unit(c(0.3,0.3,0.3,0.3), "cm"),
         panel.grid.major = element_blank()) #grid lines
 
-make_abund_plot <- function(dataset, panel_pal) {
 
-  ggplot() +
-    geom_col(data=dataset, aes(x=altura, y =qd, fill = altura)) +
-    facet_wrap(.~ group, nrow =1) +
-    scale_fill_manual(values=band_pal, name = "Altitudinal band: ") + #fill colors
-    scale_y_continuous(expand = c(0, 0), limits = c(0, 110))+ #axis starting at 0
-    labs(y ="Number of individuals") + fig2_theme +
-    theme(panel.background = element_rect(fill = NA, color = "black"),
-          axis.text.x = element_blank(), 
-          axis.ticks.x =element_blank(),
-          strip.background = element_rect(fill=panel_pal),
-          panel.grid.major = element_blank()) #grid lines
-}
-
-abun_group_plot <- make_abund_plot(abundance_fig3)
-
-abun_repr_plot <- make_abund_plot(abundance_fig3 %>% filter(cat == "repr"), "orange")
-abun_hab_plot <- make_abund_plot(abundance_fig3 %>% filter(cat == "habitat"), "gray")
-abun_weight_plot <- make_abund_plot(abundance_fig3 %>% filter(cat == "weight"), "lightblue")
-
-##########################################################
+##########################################################.
 # Joining and saving plots
-
-fig3_arranged <- ggarrange(q0_repr_plot, q0_weight_plot, q0_hab_plot, abun_repr_plot, abun_weight_plot, 
-          abun_hab_plot, common.legend = TRUE, ncol = 3, nrow = 2,
-          legend="bottom", labels = c("A", "B", "C", "D", "E", "F"))
-
 fig3_arranged <-ggarrange(fig3_q0_plot, fig3_abund_plot, common.legend = TRUE, nrow = 2,
                           legend="bottom", labels = c("A", "B"))
 
