@@ -35,7 +35,7 @@ kruskal_results <- rbind(
 
 kruskal_results <- kruskal_results %>% 
   mutate(pvalue = round(p.adjust(pvalue, "holm"), 3), # Holm-bonferroni correction
-         pvalue = case_when(pvalue <= 0.001 ~ paste0("> 0.001*"),
+         pvalue = case_when(pvalue <= 0.001 ~ paste0("< 0.001*"),
                             between(pvalue, 0.001, 0.05) ~ paste0(pvalue, "*"),
                             pvalue > 0.05 ~ paste0(pvalue)))
 

@@ -274,7 +274,7 @@ model_table <- rbind(
                        mod_rich_semiarb_500, mod_rich_semiarb_700, mod_rich_semiarb_900)) %>% 
   mutate(coefficient = round(coefficient,2), pvalue=round(pvalue,3), #rounding values
          # adding * to these under 0.05
-         pvalue = case_when(pvalue == 0 ~ paste0(">0.001*"),
+         pvalue = case_when(pvalue == 0 ~ paste0("<0.001*"),
                             pvalue < 0.05 ~ paste0(pvalue, "*"),
                             TRUE ~ paste0(pvalue)))  
 
